@@ -1,0 +1,3 @@
+/home/manvendra/Projects/chess/build/CMakeFiles/out.dir
+/home/manvendra/Projects/chess/build/CMakeFiles/edit_cache.dir
+/home/manvendra/Projects/chess/build/CMakeFiles/rebuild_cache.dir
