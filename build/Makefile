@@ -177,29 +177,29 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/out.dir/build.make CMakeFiles/out.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
-src/piece/piece.o: src/piece/piece.cpp.o
-.PHONY : src/piece/piece.o
+src/square/square.o: src/square/square.cpp.o
+.PHONY : src/square/square.o
 
 # target to build an object file
-src/piece/piece.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/out.dir/build.make CMakeFiles/out.dir/src/piece/piece.cpp.o
-.PHONY : src/piece/piece.cpp.o
+src/square/square.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/out.dir/build.make CMakeFiles/out.dir/src/square/square.cpp.o
+.PHONY : src/square/square.cpp.o
 
-src/piece/piece.i: src/piece/piece.cpp.i
-.PHONY : src/piece/piece.i
+src/square/square.i: src/square/square.cpp.i
+.PHONY : src/square/square.i
 
 # target to preprocess a source file
-src/piece/piece.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/out.dir/build.make CMakeFiles/out.dir/src/piece/piece.cpp.i
-.PHONY : src/piece/piece.cpp.i
+src/square/square.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/out.dir/build.make CMakeFiles/out.dir/src/square/square.cpp.i
+.PHONY : src/square/square.cpp.i
 
-src/piece/piece.s: src/piece/piece.cpp.s
-.PHONY : src/piece/piece.s
+src/square/square.s: src/square/square.cpp.s
+.PHONY : src/square/square.s
 
 # target to generate assembly for a file
-src/piece/piece.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/out.dir/build.make CMakeFiles/out.dir/src/piece/piece.cpp.s
-.PHONY : src/piece/piece.cpp.s
+src/square/square.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/out.dir/build.make CMakeFiles/out.dir/src/square/square.cpp.s
+.PHONY : src/square/square.cpp.s
 
 # Help Target
 help:
@@ -216,9 +216,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
-	@echo "... src/piece/piece.o"
-	@echo "... src/piece/piece.i"
-	@echo "... src/piece/piece.s"
+	@echo "... src/square/square.o"
+	@echo "... src/square/square.i"
+	@echo "... src/square/square.s"
 .PHONY : help
 
 

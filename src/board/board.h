@@ -1,9 +1,17 @@
 #ifndef boardH
 #define boardH
 
+#include <vector>
+#include "../square/square.h"
+
+
 class Board
 {
-
+public:
+    // Static because these functions should be available through-out the whole scope of the programme AKA until the programme is stopped.
+    static vector<vector<Square>> initialize_board();
+    static void print_board(vector<vector<Square>>& board);
+    static void reset_board(vector<vector<Square>>& board) { };
 };
 
 #endif

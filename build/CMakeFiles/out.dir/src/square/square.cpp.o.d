@@ -1,6 +1,7 @@
-CMakeFiles/out.dir/src/piece.cpp.o: \
- /home/manvendra/Projects/chess/src/piece.cpp /usr/include/stdc-predef.h \
- /home/manvendra/Projects/chess/src/piece.h \
+CMakeFiles/out.dir/src/square/square.cpp.o: \
+ /home/manvendra/Projects/chess/src/square/square.cpp \
+ /usr/include/stdc-predef.h \
+ /home/manvendra/Projects/chess/src/square/square.h \
  /usr/include/c++/15.2.1/string \
  /usr/include/c++/15.2.1/bits/requires_hosted.h \
  /usr/include/c++/15.2.1/x86_64-pc-linux-gnu/bits/c++config.h \

@@ -144,13 +144,11 @@ CMakeFiles/out.dir/src/main.cpp.o: \
  /usr/include/c++/15.2.1/bits/locale_facets.tcc \
  /usr/include/c++/15.2.1/bits/basic_ios.tcc \
  /usr/include/c++/15.2.1/bits/ostream.tcc /usr/include/c++/15.2.1/istream \
- /usr/include/c++/15.2.1/bits/istream.tcc /usr/include/c++/15.2.1/cstdint \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdint.h \
- /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
- /usr/include/bits/stdint-least.h \
- /home/manvendra/Projects/chess/src/piece/piece.h \
- /usr/include/c++/15.2.1/vector \
+ /usr/include/c++/15.2.1/bits/istream.tcc /usr/include/c++/15.2.1/vector \
  /usr/include/c++/15.2.1/bits/stl_uninitialized.h \
  /usr/include/c++/15.2.1/bits/stl_vector.h \
  /usr/include/c++/15.2.1/bits/stl_bvector.h \
- /usr/include/c++/15.2.1/bits/vector.tcc
+ /usr/include/c++/15.2.1/bits/vector.tcc \
+ /home/manvendra/Projects/chess/src/board/board.h \
+ /home/manvendra/Projects/chess/src/board/../square/square.h \
+ /home/manvendra/Projects/chess/src/square/square.h

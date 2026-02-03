@@ -4,8 +4,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/out.dir/src/board/board.cpp.o.d"
   "CMakeFiles/out.dir/src/main.cpp.o"
   "CMakeFiles/out.dir/src/main.cpp.o.d"
-  "CMakeFiles/out.dir/src/piece/piece.cpp.o"
-  "CMakeFiles/out.dir/src/piece/piece.cpp.o.d"
+  "CMakeFiles/out.dir/src/square/square.cpp.o"
+  "CMakeFiles/out.dir/src/square/square.cpp.o.d"
   "out"
   "out.pdb"
 )

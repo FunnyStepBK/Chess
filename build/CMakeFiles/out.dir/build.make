@@ -86,19 +86,19 @@ CMakeFiles/out.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/out.dir/src/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/manvendra/Projects/chess/src/main.cpp -o CMakeFiles/out.dir/src/main.cpp.s
 
-CMakeFiles/out.dir/src/piece/piece.cpp.o: CMakeFiles/out.dir/flags.make
-CMakeFiles/out.dir/src/piece/piece.cpp.o: /home/manvendra/Projects/chess/src/piece/piece.cpp
-CMakeFiles/out.dir/src/piece/piece.cpp.o: CMakeFiles/out.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/manvendra/Projects/chess/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/out.dir/src/piece/piece.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/out.dir/src/piece/piece.cpp.o -MF CMakeFiles/out.dir/src/piece/piece.cpp.o.d -o CMakeFiles/out.dir/src/piece/piece.cpp.o -c /home/manvendra/Projects/chess/src/piece/piece.cpp
+CMakeFiles/out.dir/src/square/square.cpp.o: CMakeFiles/out.dir/flags.make
+CMakeFiles/out.dir/src/square/square.cpp.o: /home/manvendra/Projects/chess/src/square/square.cpp
+CMakeFiles/out.dir/src/square/square.cpp.o: CMakeFiles/out.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/manvendra/Projects/chess/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/out.dir/src/square/square.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/out.dir/src/square/square.cpp.o -MF CMakeFiles/out.dir/src/square/square.cpp.o.d -o CMakeFiles/out.dir/src/square/square.cpp.o -c /home/manvendra/Projects/chess/src/square/square.cpp
 
-CMakeFiles/out.dir/src/piece/piece.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/out.dir/src/piece/piece.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/manvendra/Projects/chess/src/piece/piece.cpp > CMakeFiles/out.dir/src/piece/piece.cpp.i
+CMakeFiles/out.dir/src/square/square.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/out.dir/src/square/square.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/manvendra/Projects/chess/src/square/square.cpp > CMakeFiles/out.dir/src/square/square.cpp.i
 
-CMakeFiles/out.dir/src/piece/piece.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/out.dir/src/piece/piece.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/manvendra/Projects/chess/src/piece/piece.cpp -o CMakeFiles/out.dir/src/piece/piece.cpp.s
+CMakeFiles/out.dir/src/square/square.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/out.dir/src/square/square.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/manvendra/Projects/chess/src/square/square.cpp -o CMakeFiles/out.dir/src/square/square.cpp.s
 
 CMakeFiles/out.dir/src/board/board.cpp.o: CMakeFiles/out.dir/flags.make
 CMakeFiles/out.dir/src/board/board.cpp.o: /home/manvendra/Projects/chess/src/board/board.cpp
@@ -117,14 +117,14 @@ CMakeFiles/out.dir/src/board/board.cpp.s: cmake_force
 # Object files for target out
 out_OBJECTS = \
 "CMakeFiles/out.dir/src/main.cpp.o" \
-"CMakeFiles/out.dir/src/piece/piece.cpp.o" \
+"CMakeFiles/out.dir/src/square/square.cpp.o" \
 "CMakeFiles/out.dir/src/board/board.cpp.o"
 
 # External object files for target out
 out_EXTERNAL_OBJECTS =
 
 out: CMakeFiles/out.dir/src/main.cpp.o
-out: CMakeFiles/out.dir/src/piece/piece.cpp.o
+out: CMakeFiles/out.dir/src/square/square.cpp.o
 out: CMakeFiles/out.dir/src/board/board.cpp.o
 out: CMakeFiles/out.dir/build.make
 out: CMakeFiles/out.dir/compiler_depend.ts

@@ -1,12 +1,15 @@
 #include <iostream>
-#include <cstdint>
+#include <vector>
 
 #include "board/board.h"
-#include "piece/piece.h"
+#include "square/square.h"
 
 using namespace std;
 
 int main()
 {
+    vector<vector<Square>> board = Board::initialize_board();
+    Board::print_board(board);
+
     return 0;
 }

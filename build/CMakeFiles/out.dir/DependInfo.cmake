@@ -10,7 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/manvendra/Projects/chess/src/board/board.cpp" "CMakeFiles/out.dir/src/board/board.cpp.o" "gcc" "CMakeFiles/out.dir/src/board/board.cpp.o.d"
   "/home/manvendra/Projects/chess/src/main.cpp" "CMakeFiles/out.dir/src/main.cpp.o" "gcc" "CMakeFiles/out.dir/src/main.cpp.o.d"
-  "/home/manvendra/Projects/chess/src/piece/piece.cpp" "CMakeFiles/out.dir/src/piece/piece.cpp.o" "gcc" "CMakeFiles/out.dir/src/piece/piece.cpp.o.d"
+  "/home/manvendra/Projects/chess/src/square/square.cpp" "CMakeFiles/out.dir/src/square/square.cpp.o" "gcc" "CMakeFiles/out.dir/src/square/square.cpp.o.d"
   "" "out" "gcc" "CMakeFiles/out.dir/link.d"
   )
 
