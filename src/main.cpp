@@ -2,7 +2,6 @@
 #include <vector>
 
 #include "board/board.h"
-#include "square/square.h"
 
 using namespace std;
 
@@ -12,9 +11,8 @@ void get_input(string& square, string& target_square)
 
 int main()
 {
-    vector<vector<Square>> board = Board::initialize_board();
-    Board::reset_board(board);
-    Board::print_board(board);
+    Board board;
+    board.print_board();
 
     bool running = true;
 
@@ -28,6 +26,9 @@ int main()
         if(move == "Quit" || move == "quit")
         {
             break;
+        } else if(move == "Reset" || move == "reset")
+        {
+            board.initialize_board();
         }
 
         if(!(move.size() == 4))
@@ -35,9 +36,9 @@ int main()
             cout << "Please use valid square notations" << endl;
         }
 
-        if(Board::move_piece(move))
+        if(board.move_piece(move))
         {
-            Board::print_board(board);
+            board.print_board();
         }
     }
 

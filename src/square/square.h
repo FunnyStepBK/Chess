@@ -45,9 +45,11 @@ public:
 
     // Mutators
     void set_piece(Piece new_piece) { piece = new_piece; }
+    void set_piece(Piece new_piece, bool empty_flag) {
+        piece = new_piece;
+        is_empty = empty_flag;
+    }
     void set_color(char value) { color = value; }
-
-    void move_piece();
 
     // Static functions -- No idea right now if I am even gonna have any in this class
 

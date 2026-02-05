@@ -6,10 +6,8 @@
 
 using namespace std;
 
-vector<vector<Square>> Board::initialize_board()
+void Board::initialize_board()
 {
-    vector<vector<Square>> board(8, vector<Square>(8, Square(true)));
-
     for(int i = 0; i < 8; i++)
     {
         for(int j = 0; j < 8; j++)
@@ -30,29 +28,6 @@ vector<vector<Square>> Board::initialize_board()
         }
     }
 
-    return board;
-}
-
-void Board::print_board(vector<vector<Square>>& board)
-{
-    for(int i = 0; i < 8; i++)
-    {
-        for(Square& s : board[i])
-        {
-            if(s.is_empty)
-            {
-                cout << s.get_color() << "S ";
-            } else {
-                cout << s.get_piece().piece << " "; // Just for testing right now - Will remove later after making sure all the functions are working fine
-            }
-        }
-        cout << endl;
-    }
-
-}
-
-void Board::reset_board(vector<vector<Square>>& board)
-{
     Piece b_pawn = Piece("BP", 'B');
     for (Square& s : board[1])
     {
@@ -135,24 +110,55 @@ void Board::reset_board(vector<vector<Square>>& board)
     }
 }
 
+void Board::check_squares(int file, int rank, int target_file, int target_rank)
+{
+
+}
+
+void Board::print_board()
+{
+    for(int i = 0; i < 8; i++)
+    {
+        for(Square& s : board[i])
+        {
+            if(s.is_empty)
+            {
+                if(s.get_color() == 'B')
+                {
+                    cout << "## ";
+                } else {
+                    cout << "OO ";
+                }
+            } else {
+                cout << s.get_piece().piece << " ";
+            }
+        }
+        cout << endl;
+    }
+
+}
+
 bool Board::move_piece(string move)
 {
-    char file = (move[0] - 49);
-    char rank = (move[1] - 1);
+    int file = static_cast<int>(move[0]) - 97;
+    int rank = 56 - static_cast<int>(move[1]);
 
-    char target_file = (move[2] - 49);
-    char target_rank = (move[3] - 1);
+    int target_file = static_cast<int>(move[2]) - 97;
+    int target_rank = 56 - static_cast<int>(move[3]);
 
-    cout << "File & rank -> " << file << " " << rank << endl << "Target file & rank -> " << target_file << " " << target_rank << endl; // Just for
-    // testing if everything is working as intended - and it does. oh yeah!
-
-    if ((file < '0' || file > '7') || (rank < '0' || rank > '7') || (target_file < '0' || target_file > '7') || (target_rank < '0' || target_rank > '7'))
+    if ((file < 0 || file > 7) || (rank < 0 || rank > 7) || (target_file < 0 || target_file > 7) || (target_rank < 0 || target_rank > 7))
     {
         cout << "Invalid move! Please use standard notations to move the pieces" << endl;
         return false;
     }
 
-    cout << "Instruction: Move the piece on " << file << rank << " to " << target_file << target_rank << "\n\n";
+    Board::check_squares(file, rank, target_file, target_rank);
+
+    Piece temp = (board[rank][file].get_piece());
+    board[rank][file].set_piece(board[target_rank][target_file].get_piece(), true);
+    board[target_rank][target_file].set_piece(temp, false);
+
+    cout << temp.piece << " - " << temp.color << endl;
 
     return true;
 }
