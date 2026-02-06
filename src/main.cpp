@@ -36,7 +36,7 @@ int main()
             cout << "Please use valid square notations" << endl;
         }
 
-        if(board.move_piece(move))
+        if(board.move_piece(move, board))
         {
             board.print_board();
         }

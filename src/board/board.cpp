@@ -1,58 +1,60 @@
 #include <iostream>
 #include <vector>
+#include <string>
+#include <array>
 
 #include "board.h"
 #include "../square/square.h"
+#include "./pieces/move-sets/move-set.h"
 
 using namespace std;
 
 void Board::initialize_board()
 {
-    for(int i = 0; i < 8; i++)
+    for(int i = 0, step = 0; i < 8; i++, step++)
     {
         for(int j = 0; j < 8; j++)
         {
-            if(j % 2 == 0 && i % 2 == 0)
+            if(step % 2 == 0)
             {
                 board[i][j].set_color('W');
-            } else if(j % 2 != 0 && i % 2 == 0)
-            {
-                board[i][j].set_color('B');
-            } else if (j % 2 == 0 && i % 2 != 0)
-            {
-                board[i][j].set_color('B');
             } else
             {
-                board[i][j].set_color('W');
+                board[i][j].set_color('B');
             }
+
+            step++;
         }
     }
 
     Piece b_pawn = Piece("BP", 'B');
-    for (Square& s : board[1])
-    {
-        s.is_empty = false;
-        s.set_piece(b_pawn);
-    }
+    // b_pawn.on_start = true;
 
     Piece w_pawn = Piece("WP", 'W');
-    for (Square& s : board[6])
-    {
-        s.is_empty = false;
-        s.set_piece(w_pawn);
-    }
+    // w_pawn.on_start = true;
+
+    // for(int i = 0; i < 8; i++)
+    // {
+    //     // b_pawn.start_square = {0, i};
+    //     board[1][i].is_empty = false;
+    //     board[1][i].set_piece(b_pawn);
+    //
+    //     // w_pawn.start_square = {6, i};
+    //     board[6][i].is_empty = false;
+    //     board[6][i].set_piece(w_pawn);
+    // }
 
     Piece b_rook = Piece("BR", 'B');
     Piece b_knight = Piece("BK", 'B');
     Piece b_bishop = Piece("BB", 'B');
     Piece b_queen = Piece("BQ", 'B');
-    Piece b_king = Piece("BKG", 'B');
+    Piece b_king = Piece("BKG", 'B', 1);
 
-    Piece w_rook = Piece("WR", 'B');
-    Piece w_knight = Piece("WK", 'B');
-    Piece w_bishop = Piece("WB", 'B');
-    Piece w_queen = Piece("WQ", 'B');
-    Piece w_king = Piece("WKG", 'B');
+    Piece w_rook = Piece("WR", 'W');
+    Piece w_knight = Piece("WK", 'W');
+    Piece w_bishop = Piece("WB", 'W');
+    Piece w_queen = Piece("WQ", 'W');
+    Piece w_king = Piece("WKG", 'W', 1);
 
 
     // Setting up all the pieces by directly indexing - Don't think this is a good practice but can't really come up with another solution for this
@@ -110,11 +112,6 @@ void Board::initialize_board()
     }
 }
 
-void Board::check_squares(int file, int rank, int target_file, int target_rank)
-{
-
-}
-
 void Board::print_board()
 {
     for(int i = 0; i < 8; i++)
@@ -130,7 +127,7 @@ void Board::print_board()
                     cout << "OO ";
                 }
             } else {
-                cout << s.get_piece().piece << " ";
+                cout << s.get_piece().name << " ";
             }
         }
         cout << endl;
@@ -138,7 +135,29 @@ void Board::print_board()
 
 }
 
-bool Board::move_piece(string move)
+bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_rank)
+{
+    vector<array<int, 2>> moves_list;
+
+    switch(p.type)
+    {
+        case 1: // 1 - If the piece is a king
+            MoveSet::intercardinal_traversal(board, rank, file, 1, moves_list, p.color);
+            MoveSet::cardinal_traversal(board, rank, file, 1, moves_list, p.color);
+            break;
+        default:
+            return false;
+    }
+
+    for(array<int, 2> c : moves_list)
+    {
+        if(c[0] == target_rank && c[1] == target_file) return true;
+    }
+
+    return false;
+}
+
+bool Board::move_piece(string move, Board& b)
 {
     int file = static_cast<int>(move[0]) - 97;
     int rank = 56 - static_cast<int>(move[1]);
@@ -152,13 +171,38 @@ bool Board::move_piece(string move)
         return false;
     }
 
-    Board::check_squares(file, rank, target_file, target_rank);
+    Square curr_square = board[rank][file];
+    Square target_square = board[target_rank][target_file];
 
-    Piece temp = (board[rank][file].get_piece());
-    board[rank][file].set_piece(board[target_rank][target_file].get_piece(), true);
+    Piece temp;
+
+    if(!curr_square.has_piece())
+    {
+        cout << "\033[33m=> \033[0m" << move.substr(0, 2) << "\033[33m is an empty square!\033[0m\n" << endl;
+        print_board();
+        return false;
+    }
+
+    temp = (board[rank][file].get_piece());
+
+    if(!valid_move(temp, file, rank, target_file, target_rank))
+    {
+        cout << "\033[31mInvalid Move!\033[0m" << endl;
+        return false;
+    }
+
+    if(curr_square.has_piece() && !(target_square.has_piece()))
+    {
+        board[rank][file].set_piece(board[target_rank][target_file].get_piece(), true);
+        board[target_rank][target_file].set_piece(temp, false);
+
+        return true;
+    }
+
+    board[rank][file].set_piece(board[target_rank][target_file].get_piece(), false);
     board[target_rank][target_file].set_piece(temp, false);
 
-    cout << temp.piece << " - " << temp.color << endl;
+    cout << temp.name << " - " << temp.color << endl;
 
     return true;
 }
