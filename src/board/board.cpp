@@ -33,16 +33,16 @@ void Board::initialize_board()
     Piece w_pawn = Piece("WP", 'W');
     // w_pawn.on_start = true;
 
-    // for(int i = 0; i < 8; i++)
-    // {
-    //     // b_pawn.start_square = {0, i};
-    //     board[1][i].is_empty = false;
-    //     board[1][i].set_piece(b_pawn);
-    //
-    //     // w_pawn.start_square = {6, i};
-    //     board[6][i].is_empty = false;
-    //     board[6][i].set_piece(w_pawn);
-    // }
+    for(int i = 0; i < 8; i++)
+    {
+        // b_pawn.start_square = {0, i};
+        board[1][i].is_empty = false;
+        board[1][i].set_piece(b_pawn);
+
+        // w_pawn.start_square = {6, i};
+        board[6][i].is_empty = false;
+        board[6][i].set_piece(w_pawn);
+    }
 
     Piece b_rook = Piece("BR", 'B');
     Piece b_knight = Piece("BK", 'B');
