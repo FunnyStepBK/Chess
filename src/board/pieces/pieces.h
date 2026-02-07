@@ -16,10 +16,8 @@ public:
     string name;
     char color;
     int type;
+    bool on_start;
 
-    // Optionals for pawns
-    // optional<bool> on_start;
-    // optional<array<int, 2>> start_square;
 
     // mutators
 
@@ -29,10 +27,14 @@ public:
     Piece()
     {
     }
-    Piece(string new_piece, char new_color) : name(new_piece), color(new_color)
+    Piece(string new_piece, char new_color)
     {
+        Piece(new_piece, new_color, -1);
     }
     Piece(string new_piece, char new_color, int _type) : name(new_piece), color(new_color), type(_type)
+    {
+    }
+    Piece(string new_piece, char new_color, int _type, bool _on_start) : name(new_piece), color(new_color), type(_type), on_start(_on_start)
     {
     }
 };

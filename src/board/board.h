@@ -18,9 +18,10 @@ public:
     bool move_piece(string move, Board& b);
 
     void print_board();
+    bool valid_move(Piece p, int file, int rank, int target_file, int target_rank);
 
     // Static functions
-    bool valid_move(Piece p, int file, int rank, int target_file, int target_rank);
+    static bool out_of_bounds(int row, int col);
 
     // Constructors
     Board() : board(8, vector<Square>(8, Square(true)))

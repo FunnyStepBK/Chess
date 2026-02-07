@@ -27,33 +27,31 @@ void Board::initialize_board()
         }
     }
 
-    Piece b_pawn = Piece("BP", 'B');
+    Piece b_pawn = Piece("BP", 'B', 0, true);
     // b_pawn.on_start = true;
 
-    Piece w_pawn = Piece("WP", 'W');
+    Piece w_pawn = Piece("WP", 'W', 0, true);
     // w_pawn.on_start = true;
 
     for(int i = 0; i < 8; i++)
     {
-        // b_pawn.start_square = {0, i};
         board[1][i].is_empty = false;
         board[1][i].set_piece(b_pawn);
 
-        // w_pawn.start_square = {6, i};
         board[6][i].is_empty = false;
         board[6][i].set_piece(w_pawn);
     }
 
-    Piece b_rook = Piece("BR", 'B');
-    Piece b_knight = Piece("BK", 'B');
-    Piece b_bishop = Piece("BB", 'B');
-    Piece b_queen = Piece("BQ", 'B');
+    Piece b_rook = Piece("BR", 'B', 4);
+    Piece b_knight = Piece("BK", 'B', 2);
+    Piece b_bishop = Piece("BB", 'B', 3);
+    Piece b_queen = Piece("BQ", 'B', 5);
     Piece b_king = Piece("BKG", 'B', 1);
 
-    Piece w_rook = Piece("WR", 'W');
-    Piece w_knight = Piece("WK", 'W');
-    Piece w_bishop = Piece("WB", 'W');
-    Piece w_queen = Piece("WQ", 'W');
+    Piece w_rook = Piece("WR", 'W', 4);
+    Piece w_knight = Piece("WK", 'W', 2);
+    Piece w_bishop = Piece("WB", 'W', 3);
+    Piece w_queen = Piece("WQ", 'W', 5);
     Piece w_king = Piece("WKG", 'W', 1);
 
 
@@ -118,7 +116,7 @@ void Board::print_board()
     {
         for(Square& s : board[i])
         {
-            if(s.is_empty)
+            if(!s.has_piece())
             {
                 if(s.get_color() == 'B')
                 {
@@ -141,10 +139,69 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
 
     switch(p.type)
     {
-        case 1: // 1 - If the piece is a king
+        // 0 - If the piece is a pawn
+        case 0: {
+            int n = +1;
+            if(p.color == 'W') n = -1;
+
+            // A check so the pawn can't move forward to capture other peaces, meaning it will be stuck at it's current position until
+            // the square in-front of it is empty.
+            if(board[rank + n][file].has_piece() && target_file == file) return false;
+
+            // Adds the logic so a pawn can move upto 2 squares forward on it's first move
+            if(p.on_start) {
+                MoveSet::travel_straight(board, rank + n, file, n, 0, 2, moves_list, p.color);
+            } else
+            {
+                MoveSet::travel_straight(board, rank + n, file, 0, 0, 1, moves_list, p.color);
+            }
+
+            MoveSet::travel_diagonally(board, rank + n, file - 1, 0, 0, 1, moves_list, p.color);
+            MoveSet::travel_diagonally(board, rank + n, file + 1, 0, 0, 1, moves_list, p.color);
+
+
+            for(int i = 0, step = moves_list.size(); i < 2; i++, step--)
+            {
+                if(!board[moves_list[step - 1][0]][moves_list[step - 1][1]].has_piece())
+                {
+                    moves_list.pop_back();
+                }
+            }
+
+            break;
+        }
+
+        // 1 - If the piece is a king
+        case 1: {
             MoveSet::intercardinal_traversal(board, rank, file, 1, moves_list, p.color);
             MoveSet::cardinal_traversal(board, rank, file, 1, moves_list, p.color);
             break;
+        }
+
+        // 2 - If the piece is a knight
+        case 2: {
+
+        }
+
+        // 3 - If the piece is a bishop
+        case 3: {
+            MoveSet::intercardinal_traversal(board, rank, file, 8, moves_list, p.color);
+            break;
+        }
+
+        // 4 - If the piece is a rook
+        case 4: {
+            MoveSet::cardinal_traversal(board, rank, file, 8, moves_list, p.color);
+            break;
+        }
+
+        // 5 - If the piece is a queen
+        case 5: {
+            MoveSet::intercardinal_traversal(board, rank, file, 8, moves_list, p.color);
+            MoveSet::cardinal_traversal(board, rank, file, 8, moves_list, p.color);
+            break;
+        }
+
         default:
             return false;
     }
@@ -165,14 +222,14 @@ bool Board::move_piece(string move, Board& b)
     int target_file = static_cast<int>(move[2]) - 97;
     int target_rank = 56 - static_cast<int>(move[3]);
 
-    if ((file < 0 || file > 7) || (rank < 0 || rank > 7) || (target_file < 0 || target_file > 7) || (target_rank < 0 || target_rank > 7))
+    if (Board::out_of_bounds(rank, file) || Board::out_of_bounds(target_rank, target_file))
     {
-        cout << "Invalid move! Please use standard notations to move the pieces" << endl;
+        cout << "Invalid notation! Please use standard notations to move the pieces" << endl;
         return false;
     }
 
-    Square curr_square = board[rank][file];
-    Square target_square = board[target_rank][target_file];
+    Square& curr_square = board[rank][file];
+    Square& target_square = board[target_rank][target_file];
 
     Piece temp;
 
@@ -183,26 +240,47 @@ bool Board::move_piece(string move, Board& b)
         return false;
     }
 
-    temp = (board[rank][file].get_piece());
+    temp = curr_square.get_piece();
 
-    if(!valid_move(temp, file, rank, target_file, target_rank))
+    if(!valid_move(curr_square.get_piece(), file, rank, target_file, target_rank))
     {
         cout << "\033[31mInvalid Move!\033[0m" << endl;
         return false;
     }
 
+    // If the target square dosen't have a piece we just swap the Piece objects between both squares
     if(curr_square.has_piece() && !(target_square.has_piece()))
     {
-        board[rank][file].set_piece(board[target_rank][target_file].get_piece(), true);
-        board[target_rank][target_file].set_piece(temp, false);
+        curr_square.clear_square();
+        target_square.set_piece(temp, false);
+        if(target_square.get_piece().type == 0) target_square.update_position();
+
+        cout << curr_square.get_piece().name << " - " << target_square.get_piece().name << endl;
 
         return true;
     }
 
-    board[rank][file].set_piece(board[target_rank][target_file].get_piece(), false);
-    board[target_rank][target_file].set_piece(temp, false);
-
+    // If the target square does have a piece, we clear out that piece from the current square making it an empty square and then change
+    // the piece on the target square with the piece that was initially on current square
+    curr_square.clear_square();
+    target_square.set_piece(temp, false);
+    if(target_square.get_piece().type == 0 && target_square.get_piece().on_start == true)
+    {
+        target_square.update_position();
+    }
     cout << temp.name << " - " << temp.color << endl;
 
     return true;
 }
+
+// Guard - So we don't go out of bounds of our 8x8 board
+bool Board::out_of_bounds(int row, int col)
+{
+    if((row < 0 || row > 7) || (col < 0 || col > 7))
+    {
+        return true;
+    }
+
+    return false;
+}
+

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 
 #include "board/board.h"
 
@@ -14,12 +13,10 @@ int main()
     Board board;
     board.print_board();
 
-    bool running = true;
-
     string move;
 
     cout << "Type 'quit' or 'Quit' to exit" << endl;
-    while(running)
+    while(true)
     {
         cout << ">> ";
         cin >> move;
@@ -34,6 +31,7 @@ int main()
         if(!(move.size() == 4))
         {
             cout << "Please use valid square notations" << endl;
+            continue;
         }
 
         if(board.move_piece(move, board))

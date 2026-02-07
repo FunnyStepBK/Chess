@@ -1,6 +1,7 @@
 #ifndef squareH
 #define squareH
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <optional>
@@ -22,6 +23,12 @@ public:
     // Accessors
     Piece get_piece() { return piece; }
     char get_color() { return color; }
+    void clear_square() // Removes the piece from the square, hermm i can overload this function to make a capture piece function
+    // don't think that will be needed tho -- no idea tbh
+    {
+        is_empty = true;
+        piece = Piece();
+    }
 
     // Mutators
     void set_piece(Piece new_piece) { piece = new_piece; }
@@ -30,14 +37,10 @@ public:
         is_empty = empty_flag;
     }
     void set_color(char value) { color = value; }
-
-    bool has_piece()
-    {
-        if(is_empty) return false;
-
-        return true;
+    bool has_piece();
+    void update_position() {
+        piece.on_start = false;
     }
-
 
     // Static functions -- No idea right now if I am even gonna have any in this class
 
