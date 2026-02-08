@@ -34,6 +34,16 @@ int main()
             continue;
         }
 
+        if(board.is_king_attacked(board.get_bk_position()))
+        {
+            cout << "The black king is under attack!" << endl;
+        }
+
+        if(board.is_king_attacked(board.get_wk_position()))
+        {
+            cout << "The white king is under attack!" << endl;
+        }
+
         if(board.move_piece(move, board))
         {
             board.print_board();

@@ -208,15 +208,6 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
             return false;
     }
 
-    if(p.type == 1)
-    {
-        if(is_king_attacked({target_rank, target_file}))
-        {
-            cout << "The king can't move to that square, Invalid move!" << endl;
-            return false;
-        }
-    }
-
     for(array<int, 2> c : moves_list)
     {
         if(c[0] == target_rank && c[1] == target_file)
@@ -252,7 +243,7 @@ bool Board::move_piece(string move, Board& b)
     {
         if(is_king_attacked(get_bk_position()))
         {
-            cout << "The black king is under attack, Move it to a secure position first!" << endl;
+            cout << "\033[94mThe black king is under attack, Move it to a secure position first!\033[0m" << endl;
             return false;
         }
 
@@ -337,6 +328,7 @@ bool Board::is_king_attacked(array<int, 2> arr)
 
         if(valid_move(temp, a[0], a[1], row, col))
         {
+            cout << "The " << king.name << " is searching on " << a[0] << " - " << a[1] << endl;
             return true;
         }
     }
@@ -349,6 +341,7 @@ bool Board::is_king_attacked(array<int, 2> arr)
 
         if(valid_move(temp, a[0], a[1], row, col))
         {
+            cout << "The " << king.name << " is searching on " << a[0] << " - " << a[1] << endl;
             return true;
         }
     }

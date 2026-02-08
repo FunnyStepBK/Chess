@@ -2,6 +2,7 @@
 #include <array>
 
 #include "move-set.h"
+#include "../../../helper-functions.h"
 
 using namespace std;
 
@@ -21,7 +22,7 @@ void MoveSet::travel_diagonally(vector<vector<Square>> v, int row, int col, int 
 {
     if(fuel == 0) return;
 
-    if(Board::out_of_bounds(row, col)) return;
+    if(out_of_bounds(row, col)) return;
 
     if(v[row][col].has_piece() && !avoid_pieces)
     {
@@ -49,7 +50,7 @@ void MoveSet::travel_straight(vector<vector<Square>> v, int row, int col, int _r
 {
     if(fuel == 0) return;
 
-    if(Board::out_of_bounds(row, col)) return;
+    if(out_of_bounds(row, col)) return;
 
     if(v[row][col].has_piece() && !avoid_pieces)
     {

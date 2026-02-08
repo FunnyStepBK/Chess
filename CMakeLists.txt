@@ -4,6 +4,8 @@ project (chess)
 
 add_executable(out
 src/main.cpp
+src/helper-functions.h
+src/helper-functions.cpp
 src/square/square.h
 src/square/square.cpp
 src/board/board.h
