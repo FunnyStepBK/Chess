@@ -150,14 +150,14 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
 
             // Adds the logic so a pawn can move upto 2 squares forward on it's first move
             if(p.on_start) {
-                MoveSet::travel_straight(board, rank + n, file, n, 0, 2, moves_list, p.color);
+                MoveSet::travel_straight(board, rank + n, file, n, 0, 2, moves_list, p.color, false);
             } else
             {
-                MoveSet::travel_straight(board, rank + n, file, 0, 0, 1, moves_list, p.color);
+                MoveSet::travel_straight(board, rank + n, file, 0, 0, 1, moves_list, p.color, false);
             }
 
-            MoveSet::travel_diagonally(board, rank + n, file - 1, 0, 0, 1, moves_list, p.color);
-            MoveSet::travel_diagonally(board, rank + n, file + 1, 0, 0, 1, moves_list, p.color);
+            MoveSet::travel_diagonally(board, rank + n, file - 1, 0, 0, 1, moves_list, p.color, false);
+            MoveSet::travel_diagonally(board, rank + n, file + 1, 0, 0, 1, moves_list, p.color, false);
 
 
             for(int i = 0, step = moves_list.size(); i < 2; i++, step--)
@@ -173,37 +173,43 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
 
         // 1 - If the piece is a king
         case 1: {
-            MoveSet::intercardinal_traversal(board, rank, file, 1, moves_list, p.color);
-            MoveSet::cardinal_traversal(board, rank, file, 1, moves_list, p.color);
+            MoveSet::intercardinal_traversal(board, rank, file, 1, moves_list, p.color, false);
+            MoveSet::cardinal_traversal(board, rank, file, 1, moves_list, p.color, false);
             break;
         }
 
         // 2 - If the piece is a knight
         case 2: {
-
+            MoveSet::knight_move_set(board, rank, file, moves_list, p.color);
+            break;
         }
 
         // 3 - If the piece is a bishop
         case 3: {
-            MoveSet::intercardinal_traversal(board, rank, file, 8, moves_list, p.color);
+            MoveSet::intercardinal_traversal(board, rank, file, 8, moves_list, p.color, false);
             break;
         }
 
         // 4 - If the piece is a rook
         case 4: {
-            MoveSet::cardinal_traversal(board, rank, file, 8, moves_list, p.color);
+            MoveSet::cardinal_traversal(board, rank, file, 8, moves_list, p.color, false);
             break;
         }
 
         // 5 - If the piece is a queen
         case 5: {
-            MoveSet::intercardinal_traversal(board, rank, file, 8, moves_list, p.color);
-            MoveSet::cardinal_traversal(board, rank, file, 8, moves_list, p.color);
+            MoveSet::intercardinal_traversal(board, rank, file, 8, moves_list, p.color, false);
+            MoveSet::cardinal_traversal(board, rank, file, 8, moves_list, p.color, false);
             break;
         }
 
         default:
             return false;
+    }
+
+    for(array<int, 2> c : moves_list)
+    {
+        cout << c[0] << " - " << c[1] << endl;
     }
 
     for(array<int, 2> c : moves_list)
@@ -248,20 +254,10 @@ bool Board::move_piece(string move, Board& b)
         return false;
     }
 
-    // If the target square dosen't have a piece we just swap the Piece objects between both squares
-    if(curr_square.has_piece() && !(target_square.has_piece()))
-    {
-        curr_square.clear_square();
-        target_square.set_piece(temp, false);
-        if(target_square.get_piece().type == 0) target_square.update_position();
 
-        cout << curr_square.get_piece().name << " - " << target_square.get_piece().name << endl;
+    // I realised that both of them were doing exactly the same thing - Have the piece be stored in a temp variable, then clear out
+    // the piece on the initial square and replace the piece (if any) on the target square with our initial piece ->
 
-        return true;
-    }
-
-    // If the target square does have a piece, we clear out that piece from the current square making it an empty square and then change
-    // the piece on the target square with the piece that was initially on current square
     curr_square.clear_square();
     target_square.set_piece(temp, false);
     if(target_square.get_piece().type == 0 && target_square.get_piece().on_start == true)
