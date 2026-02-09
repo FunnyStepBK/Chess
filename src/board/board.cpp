@@ -212,7 +212,7 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
     {
         if(is_king_attacked({target_rank, target_file}))
         {
-            cout << "The king can't move to that square, Invalid move!" << endl;
+            cout << "The king can't move to that square, ";
             return false;
         }
     }
@@ -225,7 +225,6 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
         }
     }
 
-    cout << p.name << " - " << p.color << endl;
     return false;
 }
 
@@ -248,21 +247,6 @@ bool Board::move_piece(string move, Board& b)
 
     Piece temp;
 
-    if(!(temp.type == 1))
-    {
-        if(is_king_attacked(get_bk_position()))
-        {
-            cout << "The black king is under attack, Move it to a secure position first!" << endl;
-            return false;
-        }
-
-        if(is_king_attacked(get_wk_position()))
-        {
-            cout << "The white king is under attack, Move it to a secure position first!" << endl;
-            return false;
-        }
-    }
-
     if(!curr_square.has_piece())
     {
         cout << "\033[33m=> \033[0m" << move.substr(0, 2) << "\033[33m is an empty square!\033[0m\n" << endl;
@@ -272,9 +256,43 @@ bool Board::move_piece(string move, Board& b)
 
     temp = curr_square.get_piece();
 
+    if(get_turn() != temp.color)
+    {
+        cout << "Not your turn! It's your opponent's turn to move their piece." << endl;
+        return false;
+    }
+
+
+    if(!(temp.type == 1) && temp.color == get_turn() && (is_king_attacked(get_bk_position()) || is_king_attacked(get_wk_position())))
+    {
+        Board temp_board;
+        temp_board.board = board;
+        if(!temp_board.valid_move(temp, file, rank, target_file, target_rank))
+        {
+            cout << "\033[31mInvalid Move!\033[0m" << endl;
+            return false;
+        }
+
+        Piece p = temp_board.board[rank][file].get_piece();
+        temp_board.board[rank][file].clear_square();
+        temp_board.board[target_rank][target_file].set_piece(p, false);
+
+        if(temp_board.is_king_attacked(get_bk_position()))
+        {
+            cout << "Your king is under attack, Move it to a secure position first!" << endl;
+            return false;
+        }
+
+        if(temp_board.is_king_attacked(get_wk_position()))
+        {
+            cout << "Your king is under attack, Move it to a secure position first!" << endl;
+            return false;
+        }
+    }
+
     cout << temp.name << " - " << temp.color << endl;
 
-    if(!valid_move(curr_square.get_piece(), file, rank, target_file, target_rank))
+    if(!valid_move(temp, file, rank, target_file, target_rank))
     {
         cout << "\033[31mInvalid Move!\033[0m" << endl;
         return false;
@@ -285,11 +303,9 @@ bool Board::move_piece(string move, Board& b)
         if(temp.color == 'W')
         {
             update_wk_position({target_rank, target_file});
-            cout << "New position of the white king " << target_rank << " - " << target_file << endl;
         } else
         {
             update_bk_position({target_rank, target_file});
-            cout << "New position of the black king " << target_rank << " - " << target_file << endl;
         }
     }
 
@@ -301,6 +317,14 @@ bool Board::move_piece(string move, Board& b)
     if(target_square.get_piece().type == 0 && target_square.get_piece().on_start == true)
     {
         target_square.update_position();
+    }
+
+    if(temp.color == 'W')
+    {
+        update_turn('B');
+    } else
+    {
+        update_turn('W');
     }
 
     if(is_king_attacked(get_bk_position()))
