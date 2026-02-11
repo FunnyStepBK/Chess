@@ -29,19 +29,16 @@ void Board::initialize_board()
     }
 
     Piece b_pawn = Piece("BP", 'B', 0, true);
-    // b_pawn.on_start = true;
-
     Piece w_pawn = Piece("WP", 'W', 0, true);
-    // w_pawn.on_start = true;
 
-    // for(int i = 0; i < 8; i++)
-    // {
-    //     board[1][i].is_empty = false;
-    //     board[1][i].set_piece(b_pawn);
-    //
-    //     board[6][i].is_empty = false;
-    //     board[6][i].set_piece(w_pawn);
-    // }
+    for(int i = 0; i < 8; i++)
+    {
+        board[1][i].is_empty = false;
+        board[1][i].set_piece(b_pawn);
+
+        board[6][i].is_empty = false;
+        board[6][i].set_piece(w_pawn);
+    }
 
     Piece b_rook = Piece("BR", 'B', 4);
     Piece b_knight = Piece("BK", 'B', 2);
@@ -160,13 +157,21 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
             MoveSet::travel_diagonally(board, rank + n, file - 1, 0, 0, 1, moves_list, p.color, false);
             MoveSet::travel_diagonally(board, rank + n, file + 1, 0, 0, 1, moves_list, p.color, false);
 
+            int temp_rank;
+            int temp_file;
+            int counter = 0;
 
-            for(int i = 0, step = moves_list.size(); i < 2; i++, step--)
+            for(array<int, 2> a : moves_list)
             {
-                if(!board[moves_list[step - 1][0]][moves_list[step - 1][1]].has_piece())
+                temp_rank = a[0];
+                temp_file = a[1];
+
+                if(temp_file != file && !board[temp_rank][temp_file].has_piece())
                 {
-                    moves_list.pop_back();
+                    moves_list.erase(moves_list.begin() + counter);
                 }
+
+                counter++;
             }
 
             break;
@@ -208,15 +213,6 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
             return false;
     }
 
-    if(p.type == 1)
-    {
-        if(is_king_attacked({target_rank, target_file}))
-        {
-            cout << "The king can't move to that square, ";
-            return false;
-        }
-    }
-
     for(array<int, 2> c : moves_list)
     {
         if(c[0] == target_rank && c[1] == target_file)
@@ -245,7 +241,7 @@ bool Board::move_piece(string move, Board& b)
     Square& curr_square = board[rank][file];
     Square& target_square = board[target_rank][target_file];
 
-    Piece temp;
+    Piece piece;
 
     if(!curr_square.has_piece())
     {
@@ -254,53 +250,65 @@ bool Board::move_piece(string move, Board& b)
         return false;
     }
 
-    temp = curr_square.get_piece();
+    piece = curr_square.get_piece();
 
-    if(get_turn() != temp.color)
+    if(get_turn() != piece.color)
     {
         cout << "Not your turn! It's your opponent's turn to move their piece." << endl;
         return false;
     }
 
 
-    if(!(temp.type == 1) && temp.color == get_turn() && (is_king_attacked(get_bk_position()) || is_king_attacked(get_wk_position())))
+    if(get_turn() == piece.color && is_checked(get_turn()))
     {
         Board temp_board;
         temp_board.board = board;
-        if(!temp_board.valid_move(temp, file, rank, target_file, target_rank))
+        Square& temp_square = temp_board.board[rank][file];
+        Square& temp_target = temp_board.board[target_rank][target_file];
+
+        if(!temp_board.valid_move(piece, file, rank, target_file, target_rank))
         {
             cout << "\033[31mInvalid Move!\033[0m" << endl;
+            cout << "Your king is in danger! Move it to a safe position first." << endl;
             return false;
         }
 
-        Piece p = temp_board.board[rank][file].get_piece();
-        temp_board.board[rank][file].clear_square();
-        temp_board.board[target_rank][target_file].set_piece(p, false);
+        temp_square.clear_square();
+        temp_target.set_piece(piece, false);
 
-        if(temp_board.is_king_attacked(get_bk_position()))
+        if(piece.type == 1)
         {
-            cout << "Your king is under attack, Move it to a secure position first!" << endl;
-            return false;
+            if(get_turn() == 'B')
+            {
+                temp_board.update_bk_position({target_rank, target_file});
+            } else
+            {
+                temp_board.update_wk_position({target_rank, target_file});
+            }
         }
 
-        if(temp_board.is_king_attacked(get_wk_position()))
+        if(temp_board.is_checked(get_turn()))
         {
-            cout << "Your king is under attack, Move it to a secure position first!" << endl;
+            if(piece.type == 1)
+            {
+                cout << "\033[31m Illegal Move!\033[0m" << endl;
+                return false;
+            }
+            cout << "\033[31m Illegal Move!\033[0m" << endl;
+            cout << "Your king is in danger! Move it to a safe position first." << endl;
             return false;
         }
     }
 
-    cout << temp.name << " - " << temp.color << endl;
-
-    if(!valid_move(temp, file, rank, target_file, target_rank))
+    if(!valid_move(piece, file, rank, target_file, target_rank))
     {
         cout << "\033[31mInvalid Move!\033[0m" << endl;
         return false;
     }
 
-    if(temp.type == 1)
+    if(piece.type == 1)
     {
-        if(temp.color == 'W')
+        if(piece.color == 'W')
         {
             update_wk_position({target_rank, target_file});
         } else
@@ -309,17 +317,14 @@ bool Board::move_piece(string move, Board& b)
         }
     }
 
-    // I realised that both of them were doing exactly the same thing - Have the piece be stored in a temp variable, then clear out
-    // the piece on the initial square and replace the piece (if any) on the target square with our initial piece ->
-
     curr_square.clear_square();
-    target_square.set_piece(temp, false);
+    target_square.set_piece(piece, false);
     if(target_square.get_piece().type == 0 && target_square.get_piece().on_start == true)
     {
         target_square.update_position();
     }
 
-    if(temp.color == 'W')
+    if(piece.color == 'W')
     {
         update_turn('B');
     } else
@@ -327,56 +332,67 @@ bool Board::move_piece(string move, Board& b)
         update_turn('W');
     }
 
-    if(is_king_attacked(get_bk_position()))
+    if(is_checked(get_turn()))
     {
-        cout << "The black king is under attack!" << endl;
-    }
-
-    if(is_king_attacked(get_wk_position()))
-    {
-        cout << "The white king is under attack!" << endl;
+        cout << "Check!" << endl;
     }
 
     return true;
 }
 
-bool Board::is_king_attacked(array<int, 2> arr)
+bool Board::is_checked(char color)
 {
-    int row = arr[0];
-    int col = arr[1];
-    Square& square = board[row][col];
-    Piece king = square.get_piece();
+    int rank = get_bk_position()[0];
+    int file = get_bk_position()[1];
 
-    vector<array<int, 2>> squares_in_view;
-    vector<array<int, 2>> knights_in_view;
-
-    MoveSet::cardinal_traversal(board, row, col, 8, squares_in_view, king.color, false);
-    MoveSet::knight_move_set(board, row, col, knights_in_view, king.color);
-
-    for(array<int, 2> a : squares_in_view)
+    if(color == 'W')
     {
-        if(!board[a[0]][a[1]].has_piece()) continue;
-        Piece temp = board[a[0]][a[1]].get_piece();
+        rank = get_wk_position()[0];
+        file = get_wk_position()[1];
+    }
 
+    vector<array<int, 2>> in_sight;
+    vector<array<int, 2>> in_L_sight;
 
-        if(valid_move(temp, a[0], a[1], row, col))
+    MoveSet::intercardinal_traversal(board, rank, file, 8, in_sight, color, false);
+    MoveSet::cardinal_traversal(board, rank, file, 8, in_sight, color, false);
+    MoveSet::knight_move_set(board, rank, file, in_L_sight, color);
+
+    int target_rank;
+    int target_file;
+    Square square;
+
+    for(array<int, 2> a : in_sight)
+    {
+        target_rank = a[0];
+        target_file = a[1];
+        square = board[target_rank][target_file];
+
+        if(!square.has_piece())
+        {
+            continue;
+        }
+        if(valid_move(square.get_piece(), target_file, target_rank, file, rank))
         {
             return true;
         }
     }
 
-    for(array<int, 2> a : knights_in_view)
+    for(array<int, 2> a : in_L_sight)
     {
-        if(!board[a[0]][a[1]].has_piece()) continue;
-        Piece temp = board[a[0]][a[1]].get_piece();
+        target_rank = a[0];
+        target_file = a[1];
+        square = board[target_rank][target_file];
 
-
-        if(valid_move(temp, a[0], a[1], row, col))
+        if(!square.has_piece())
+        {
+            continue;
+        }
+        if(valid_move(square.get_piece(), target_file, target_rank, file, rank))
         {
             return true;
         }
     }
-
 
     return false;
 }

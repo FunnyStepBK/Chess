@@ -3,20 +3,64 @@
 
 using namespace std;
 
-TEST_CASE("Try to move the king to the square d2 - this test should fail because that square is range of an enemy piece AKA un-safe for the king", "[board]")
+TEST_CASE("King", "[board]")
 {
     Board board;
-    REQUIRE(board.move_piece("e1d2", board) == false);
 
-    SECTION("Give a check to the black king", "[board]")
+    SECTION("When: A piece gives a check to the opponent king - Then: Return true", "[board]")
     {
-        board.move_piece("d1e2", board);
-        REQUIRE(board.is_king_attacked(board.get_bk_position()) == true);
+        board.move_piece("e2e4", board);
+        board.move_piece("f7f5", board);
+        board.move_piece("d1h5", board);
+        REQUIRE(board.is_checked('B') == true);
     }
 
-    SECTION("Trying to move another piece while the king of the same side should result in a fail", "[board]")
+    SECTION("When: Trying to move another piece while the king of the same side is under check - Then: Return false", "[board]")
     {
-        board.move_piece("d1e2", board);
+        board.move_piece("e2e4", board);
+        board.move_piece("f7f5", board);
+        board.move_piece("d1h5", board);
+        board.move_piece("a2a4", board);
         REQUIRE(board.move_piece("a1a2", board) == false);
+    }
+
+    SECTION("When: Trying to move the king in line-of-sight (range) of another piece - Then: Return false")
+    {
+        board.move_piece("c2c3", board);
+        board.move_piece("f7f6", board);
+        board.move_piece("d2b3", board);
+        REQUIRE(board.move_piece("e8f7", board) == false);
+    }
+
+
+}
+
+TEST_CASE("Pawn", "[board]")
+{
+    Board board;
+
+    SECTION("When: A pawn on it's starting square tries to move 2 squares - Then: Return true")
+    {
+        REQUIRE(board.move_piece("a2a4", board) == true);
+    }
+
+    SECTION("When: A pawn not on it's starting square tries to move 2 squares - Then: Return false")
+    {
+        board.move_piece("a2a4", board);
+        REQUIRE(board.move_piece("a4a6", board) == false);
+    }
+
+    SECTION("When: A pawn tries to move diagonally with no piece on the target square - Then: Return false")
+    {
+        board.move_piece("d2d4", board);
+        board.move_piece("d7d5", board);
+        REQUIRE(board.move_piece("d4e5", board) == false);
+    }
+
+    SECTION("When: A pawn tries to move diagonally with a piece present on the target square - Then: Return false")
+    {
+        board.move_piece("d2d4", board);
+        board.move_piece("e7e5", board);
+        REQUIRE(board.move_piece("d4e5", board) == true);
     }
 }

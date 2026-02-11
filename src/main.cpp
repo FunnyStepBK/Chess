@@ -26,6 +26,8 @@ int main()
         } else if(move == "Reset" || move == "reset")
         {
             board.initialize_board();
+            board.print_board();
+            continue;
         }
 
         if(!(move.size() == 4))
