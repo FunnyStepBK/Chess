@@ -139,10 +139,13 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
 
     if(p.type == 0)
     {
-    int n = +1;
-    if(p.color == 'W') n = -1;
+        int n = +1;
+        if(p.color == 'W')
+        {
+            n = -1;
+        }
 
-    if(board[rank + n][file].has_piece() && target_file == file) return false;
+        if((board[rank + n][file].has_piece() || board[rank +(n * 2)][file].has_piece()) && target_file == file) return false;
     }
 
     for(array<int, 2> c : moves_list)
@@ -196,10 +199,10 @@ bool Board::move_piece(string move, Board& b)
         {
             if(piece.type == 1)
             {
-                cout << "\033[31m Illegal Move!\033[0m" << endl;
+                cout << "\033[31m> Illegal Move!\033[0m" << endl;
                 return false;
             }
-            cout << "\033[31m Illegal Move!\033[0m" << endl;
+            cout << "\033[31m> Illegal Move!\033[0m" << endl;
             cout << "Your king is in danger! Move it to a safe position first." << endl;
             return false;
         }
@@ -207,7 +210,7 @@ bool Board::move_piece(string move, Board& b)
 
     if(!valid_move(piece, file, rank, target_file, target_rank))
     {
-        cout << "\033[31mInvalid Move!\033[0m" << endl;
+        cout << "\033[31m> Invalid Move!\033[0m" << endl;
         return false;
     }
 
@@ -257,7 +260,7 @@ bool Board::is_king_safe(Piece piece, int file, int rank, int target_file, int t
 
     if(piece.type == 1)
     {
-        if(get_turn() == 'B')
+        if(piece.color == 'B')
         {
             temp_board.update_bk_position({target_rank, target_file});
         } else
@@ -266,7 +269,7 @@ bool Board::is_king_safe(Piece piece, int file, int rank, int target_file, int t
         }
     }
 
-    if(temp_board.is_checked(get_turn()))
+    if(temp_board.is_checked(piece.color))
     {
         return false;
     }
@@ -333,7 +336,7 @@ bool Board::is_checked(char color)
 
 bool Board::is_checkmate(char color)
 {
-    vector<array<int, 2>> pieces;
+    vector<array<int, 2>> squares;
 
     for(int i = 0; i < 8; i++)
     {
@@ -341,10 +344,10 @@ bool Board::is_checkmate(char color)
         {
             if(board[i][j].get_piece().color == color)
             {
-                pieces.push_back({i, j});
+                squares.push_back({i, j});
             }
 
-            if(pieces.size() == 16)
+            if(squares.size() == 16)
             {
                 break;
             }
@@ -356,7 +359,7 @@ bool Board::is_checkmate(char color)
 
     vector<array<int, 2>> moves_list;
 
-    for(array<int, 2> square : pieces)
+    for(array<int, 2> square : squares)
     {
         int target_rank;
         int target_file;
@@ -366,10 +369,9 @@ bool Board::is_checkmate(char color)
         rank = square[0];
         file = square[1];
 
-        Square s = board[rank][file];
-        Piece p = s.get_piece();
+        Piece p = board[rank][file].get_piece();
 
-        get_moves(p, rank, file, moves_list, board);
+        get_moves(p, file, rank, moves_list, board);
 
         for(array<int, 2> move : moves_list)
         {

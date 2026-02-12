@@ -15,6 +15,14 @@ TEST_CASE("King", "[board]")
         REQUIRE(board.is_checked('B') == true);
     }
 
+    SECTION("When: A piece gives a check to the opponent king and the player does have squares to go to - Then: is_checkmate should return true")
+    {
+        board.move_piece("e2e4", board);
+        board.move_piece("f7f5", board);
+        board.move_piece("d1h5", board);
+        REQUIRE(board.is_checkmate(board.get_turn()) == false);
+    }
+
     SECTION("When: An opponent knight gives a check to the opponent king - Then: Return true")
     {
         board.move_piece("b1c3", board);
@@ -41,6 +49,15 @@ TEST_CASE("King", "[board]")
         REQUIRE(board.move_piece("e8f7", board) == false);
     }
 
+    SECTION("When: There are no more safe moves/squares left for one side that can protect their king AKA it's a checkmate - Then: Return true")
+    {
+        board.move_piece("e2e4", board);
+        board.move_piece("g7g5", board);
+        board.move_piece("b1c3", board);
+        board.move_piece("f7f6", board);
+        board.move_piece("d1h5", board);
+        REQUIRE(board.is_checkmate(board.get_turn()) == true);
+    }
 
 }
 
@@ -72,4 +89,13 @@ TEST_CASE("Pawn", "[board]")
         board.move_piece("e7e5", board);
         REQUIRE(board.move_piece("d4e5", board) == true);
     }
+
+    SECTION("When: A pawn tries to capture a piece by moving forward - Then: Return false")
+    {
+        board.move_piece("e2e4", board);
+        board.move_piece("e7e5", board);
+        REQUIRE(board.move_piece("e4e5", board) == false);
+    }
 }
+
+

@@ -43,10 +43,10 @@ int main()
             {
                 if(board.is_checkmate(board.get_turn()))
                 {
-                    cout << "Checkmate!" << endl;
+                    cout << "\033[034m>> Checkmate! Game over.\033[0m" << endl;
                     board.print_board();
 
-                    cout << "Game over." << endl << "Type 'quit'/'Quit' to quit, or type 'reset'/'Reset' to reset the board to play another game!" << endl;
+                    cout << "\033[033m> Type 'quit'/'Quit' to quit, or type 'reset'/'Reset' to reset the board to play another game!\033[0m" << endl;
 
                     while(true)
                     {
@@ -61,13 +61,13 @@ int main()
                             break;
                         } else
                         {
-                            cout << "\033[033mPlease choose a valid option.\033[0m" << endl;
+                            cout << "\033[033m> Please choose a valid option.\033[0m" << endl;
                             continue;
                         }
                     }
                 } else
                 {
-                    cout << "Check!" << endl;
+                    cout << "\033[037mCheck!\033[0m" << endl;
                 }
             }
 
