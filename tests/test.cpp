@@ -7,7 +7,7 @@ TEST_CASE("King", "[board]")
 {
     Board board;
 
-    SECTION("When: A piece gives a check to the opponent king - Then: Return true", "[board]")
+    SECTION("When: A piece gives a check to the opponent king - Then: Return true")
     {
         board.move_piece("e2e4", board);
         board.move_piece("f7f5", board);
@@ -15,7 +15,16 @@ TEST_CASE("King", "[board]")
         REQUIRE(board.is_checked('B') == true);
     }
 
-    SECTION("When: Trying to move another piece while the king of the same side is under check - Then: Return false", "[board]")
+    SECTION("When: An opponent knight gives a check to the opponent king - Then: Return true")
+    {
+        board.move_piece("b1c3", board);
+        board.move_piece("a7a6", board);
+        board.move_piece("c3d5", board);
+        board.move_piece("a6a5", board);
+        REQUIRE(board.move_piece("d5c7", board) == true);
+    }
+
+    SECTION("When: Trying to move another piece while the king of the same side is under check - Then: Return false")
     {
         board.move_piece("e2e4", board);
         board.move_piece("f7f5", board);

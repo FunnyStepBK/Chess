@@ -24,7 +24,10 @@ public:
     bool valid_move(Piece p, int file, int rank, int target_file, int target_rank);
     bool move_piece(string move, Board& b);
 
+    // Fucntion related to mechaincs/game-rules surrounding the King
+    bool is_king_safe(Piece piece, int file, int rank, int target_file, int target_rank);
     bool is_checked(char color);
+    bool is_checkmate(char color);
 
     // accessors
     array<int, 2> get_wk_position() { return WKing_square; }

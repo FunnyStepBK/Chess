@@ -25,7 +25,7 @@ int main()
             break;
         } else if(move == "Reset" || move == "reset")
         {
-            board.initialize_board();
+            board = Board();
             board.print_board();
             continue;
         }
@@ -39,6 +39,38 @@ int main()
 
         if(board.move_piece(move, board))
         {
+            if(board.is_checked(board.get_turn()))
+            {
+                if(board.is_checkmate(board.get_turn()))
+                {
+                    cout << "Checkmate!" << endl;
+                    board.print_board();
+
+                    cout << "Game over." << endl << "Type 'quit'/'Quit' to quit, or type 'reset'/'Reset' to reset the board to play another game!" << endl;
+
+                    while(true)
+                    {
+                        cout << ">> ";
+                        cin >> move;
+                        if(move == "Quit" || move == "quit")
+                        {
+                            return 0;
+                        } else if(move == "Reset" || move == "reset")
+                        {
+                            board = Board();
+                            break;
+                        } else
+                        {
+                            cout << "\033[033mPlease choose a valid option.\033[0m" << endl;
+                            continue;
+                        }
+                    }
+                } else
+                {
+                    cout << "Check!" << endl;
+                }
+            }
+
             board.print_board();
         }
     }
