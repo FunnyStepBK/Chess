@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <deque>
 
 #include "../square/square.h"
 
@@ -14,6 +15,8 @@ private:
     array<int, 2> WKing_square;
     array<int, 2> BKing_square;
     char turn;
+    deque<array<int, 5>> moves_buffer;
+    vector<Piece> captured_pieces;
 
 public:
     void initialize_board(); // Adds all the pieces to their appropriate starting squares can also be used to reset the position of
@@ -21,8 +24,10 @@ public:
 
     void print_board();
 
+    // Funcitons related to the whole piece movement functionality
     bool valid_move(Piece p, int file, int rank, int target_file, int target_rank);
-    bool move_piece(string move, Board& b);
+    bool move_piece(string move);
+    int undo_move();
 
     // Fucntion related to mechaincs/game-rules surrounding the King
     bool is_king_safe(Piece piece, int file, int rank, int target_file, int target_rank);

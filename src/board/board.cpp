@@ -28,8 +28,8 @@ void Board::initialize_board()
         }
     }
 
-    Piece b_pawn = Piece("BP", 'B', 0, true);
-    Piece w_pawn = Piece("WP", 'W', 0, true);
+    Piece b_pawn = Piece("\033[035mBP\033[0m", 'B', 0, true);
+    Piece w_pawn = Piece("\033[036mWP\033[0m", 'W', 0, true);
 
     for(int i = 0; i < 8; i++)
     {
@@ -40,17 +40,17 @@ void Board::initialize_board()
         board[6][i].set_piece(w_pawn);
     }
 
-    Piece b_rook = Piece("BR", 'B', 4);
-    Piece b_knight = Piece("BK", 'B', 2);
-    Piece b_bishop = Piece("BB", 'B', 3);
-    Piece b_queen = Piece("BQ", 'B', 5);
-    Piece b_king = Piece("BKG", 'B', 1);
+    Piece b_rook = Piece("\033[035mBR\033[0m", 'B', 4);
+    Piece b_knight = Piece("\033[035mBN\033[0m", 'B', 2);
+    Piece b_bishop = Piece("\033[035mBB\033[0m", 'B', 3);
+    Piece b_queen = Piece("\033[035mBQ\033[0m", 'B', 5);
+    Piece b_king = Piece("\033[035mBK\033[0m", 'B', 1);
 
-    Piece w_rook = Piece("WR", 'W', 4);
-    Piece w_knight = Piece("WK", 'W', 2);
-    Piece w_bishop = Piece("WB", 'W', 3);
-    Piece w_queen = Piece("WQ", 'W', 5);
-    Piece w_king = Piece("WKG", 'W', 1);
+    Piece w_rook = Piece("\033[036mWR\033[0m", 'B', 4);
+    Piece w_knight = Piece("\033[036mWN\033[0m", 'B', 2);
+    Piece w_bishop = Piece("\033[036mWB\033[0m", 'B', 3);
+    Piece w_queen = Piece("\033[036mWQ\033[0m", 'B', 5);
+    Piece w_king = Piece("\033[036mWK\033[0m", 'B', 1);
 
 
     // Setting up all the pieces by directly indexing - Don't think this is a good practice but can't really come up with another solution for this
@@ -159,7 +159,7 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
     return false;
 }
 
-bool Board::move_piece(string move, Board& b)
+bool Board::move_piece(string move)
 {
     int file = static_cast<int>(move[0]) - 97;
     int rank = 56 - static_cast<int>(move[1]);
@@ -180,7 +180,7 @@ bool Board::move_piece(string move, Board& b)
 
     if(!curr_square.has_piece())
     {
-        cout << "\033[33m=> \033[0m" << move.substr(0, 2) << "\033[33m is an empty square!\033[0m\n" << endl;
+        cout << "\033[33m=> \033[0m" << move.substr(0, 2) << "\033[33m is an empty square!\033[0m\n";
         print_board();
         return false;
     }
@@ -225,11 +225,27 @@ bool Board::move_piece(string move, Board& b)
         }
     }
 
+    if(target_square.has_piece())
+    {
+        captured_pieces.push_back(target_square.get_piece());
+    }
+
+    if(moves_buffer.size() < 3)
+    {
+        target_square.has_piece() ? moves_buffer.push_back({file, rank, target_file, target_rank, 1}) :
+        moves_buffer.push_back({file, rank, target_file, target_rank, 0});
+    } else
+    {
+        moves_buffer.pop_front();
+        target_square.has_piece() ? moves_buffer.push_back({file, rank, target_file, target_rank, 1}) :
+        moves_buffer.push_back({file, rank, target_file, target_rank, 0});
+    }
+
     curr_square.clear_square();
     target_square.set_piece(piece, false);
     if(target_square.get_piece().type == 0 && target_square.get_piece().on_start == true)
     {
-        target_square.update_position();
+        target_square.update_position(false);
     }
 
     if(piece.color == 'W')
@@ -241,6 +257,54 @@ bool Board::move_piece(string move, Board& b)
     }
 
     return true;
+}
+
+int Board::undo_move()
+{
+    int s = moves_buffer.size();
+
+    if(s == 0)
+    {
+        cout << "> No moves in the moves buffer, it only stores the last 3 moves." << endl;
+        return 0;
+    }
+
+    int target_file = moves_buffer[s-1][0];
+    int target_rank = moves_buffer[s-1][1];
+    int file = moves_buffer[s-1][2];
+    int rank = moves_buffer[s-1][3];
+
+    int captured = moves_buffer[s-1][4];
+
+    Piece temp = board[rank][file].get_piece();
+
+    if(captured)
+    {
+        Piece captured_piece = captured_pieces[captured_pieces.size() - 1];
+
+        board[rank][file].set_piece(captured_piece, false);
+        board[target_rank][target_file].set_piece(temp, false);
+    } else
+    {
+        board[rank][file].clear_square();
+        board[target_rank][target_file].set_piece(temp, false);
+    }
+
+    int row = 6;
+    if(temp.color == 'B')
+    {
+        row = 1;
+    }
+    if(temp.type == 0 && target_rank == row)
+    {
+        board[target_rank][target_file].update_position(true);
+    }
+
+
+    moves_buffer.pop_back();
+    update_turn(temp.color);
+
+    return 1;
 }
 
 bool Board::is_king_safe(Piece piece, int file, int rank, int target_file, int target_rank)

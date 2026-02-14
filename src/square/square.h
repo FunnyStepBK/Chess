@@ -38,8 +38,8 @@ public:
     }
     void set_color(char value) { color = value; }
     bool has_piece();
-    void update_position() {
-        piece.on_start = false;
+    void update_position(bool value) {
+        piece.on_start = value;
     }
 
     // Static functions -- No idea right now if I am even gonna have any in this class

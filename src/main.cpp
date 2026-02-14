@@ -18,7 +18,7 @@ int main()
     {
         if(!get_input(move, board, false, running)) { continue; }
 
-        if(board.move_piece(move, board)) {
+        if(board.move_piece(move)) {
             if(board.is_checked(board.get_turn()))
             {
                 if(board.is_checkmate(board.get_turn()))

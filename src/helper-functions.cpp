@@ -31,6 +31,13 @@ bool get_input(string& move, Board& board, bool game_over, bool& running)
         return false;
     }
 
+    if(move == "undo" || move == "Undo")
+    {
+        board.undo_move();
+        board.print_board();
+        return false;
+    }
+
     if(!(move.size() == 4) && !game_over)
     {
         cout << "Please use valid square notations!" << endl;
