@@ -5,6 +5,46 @@
 #include "../src/board/pieces/move-sets/move-set.h"
 #include "../src/board/board.h"
 
+// A function to handle all the input and perform actions accordingly
+bool get_input(string& move, Board& board, bool game_over, bool& running)
+{
+    if(!game_over)
+    {
+        cout << "(" << board.get_turn() << ")" << ">> ";
+    } else
+    {
+        cout << ">> ";
+    }
+
+    cin >> move;
+
+    if(move == "Quit" || move == "quit")
+    {
+        running = false;
+        return false;
+    }
+
+    if(move == "Reset" || move == "reset")
+    {
+        board = Board();
+        board.print_board();
+        return false;
+    }
+
+    if(!(move.size() == 4) && !game_over)
+    {
+        cout << "Please use valid square notations!" << endl;
+        return false;
+    }
+
+    if(game_over)
+    {
+        cout << "\033[033m> Please choose a valid option.\033[0m" << endl;
+    }
+
+    return true;
+}
+
 // Guard - So we don't go out of bounds of our 8x8 board
 bool out_of_bounds(int row, int col)
 {

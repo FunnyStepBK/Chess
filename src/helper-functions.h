@@ -6,6 +6,9 @@
 
 using namespace std;
 
+// A function to handle all the input and perform actions accordingly
+bool get_input(string& move, Board& board, bool game_over, bool& running);
+
 // Guard - So we don't go out of bounds of our 8x8 board
 bool out_of_bounds(int row, int col);
 

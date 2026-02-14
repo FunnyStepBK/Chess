@@ -1,12 +1,9 @@
 #include <iostream>
 
 #include "board/board.h"
+#include "./helper-functions.h"
 
 using namespace std;
-
-void get_input(string& square, string& target_square)
-{
-}
 
 int main()
 {
@@ -14,31 +11,14 @@ int main()
     board.print_board();
 
     string move;
+    bool running = true;
 
     cout << "Type 'quit' or 'Quit' to exit" << endl;
-    while(true)
+    while(running)
     {
-        cout << "(" << board.get_turn() << ")" << ">> ";
-        cin >> move;
-        if(move == "Quit" || move == "quit")
-        {
-            break;
-        } else if(move == "Reset" || move == "reset")
-        {
-            board = Board();
-            board.print_board();
-            continue;
-        }
+        if(!get_input(move, board, false, running)) { continue; }
 
-        if(!(move.size() == 4))
-        {
-            cout << "Please use valid square notations" << endl;
-            continue;
-        }
-
-
-        if(board.move_piece(move, board))
-        {
+        if(board.move_piece(move, board)) {
             if(board.is_checked(board.get_turn()))
             {
                 if(board.is_checkmate(board.get_turn()))
@@ -47,24 +27,9 @@ int main()
                     board.print_board();
 
                     cout << "\033[033m> Type 'quit'/'Quit' to quit, or type 'reset'/'Reset' to reset the board to play another game!\033[0m" << endl;
+                    while(get_input(move, board, true, running)) {}
+                    continue;
 
-                    while(true)
-                    {
-                        cout << ">> ";
-                        cin >> move;
-                        if(move == "Quit" || move == "quit")
-                        {
-                            return 0;
-                        } else if(move == "Reset" || move == "reset")
-                        {
-                            board = Board();
-                            break;
-                        } else
-                        {
-                            cout << "\033[033m> Please choose a valid option.\033[0m" << endl;
-                            continue;
-                        }
-                    }
                 } else
                 {
                     cout << "\033[037mCheck!\033[0m" << endl;
