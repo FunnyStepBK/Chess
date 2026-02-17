@@ -1,52 +1,63 @@
+#include <ncurses.h>
 #include <array>
+#include <cstring>
 #include <vector>
 
 #include "helper-functions.h"
 #include "../src/board/pieces/move-sets/move-set.h"
 #include "../src/board/board.h"
 
-// A function to handle all the input and perform actions accordingly
-bool get_input(string& move, Board& board, bool game_over, bool& running)
+// A function to create windows with attributes
+WINDOW* create_win(int height, int width, int starty, int startx)
 {
-    if(!game_over)
+    WINDOW* temp_win;
+
+    temp_win = newwin(height, width, starty, startx);
+
+    box(temp_win, 0, 0);
+    wrefresh(temp_win);
+
+    return temp_win;
+}
+
+// A function to delete a window
+void delete_win(WINDOW* window)
+{
+    // Replaces the characters used for creating the border of a window with 'Space' so we won't get any ugly remnants
+    wborder(window, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
+
+    wrefresh(window);
+    delwin(window);
+}
+
+// A function to handle all the input and perform actions accordingly
+bool get_input(char res[], Board& board, bool game_over, bool& running, WINDOW* win)
+{
+    wmove(win, 2, 3);
+    wclrtobot(win);
+
+    string temp;
+    for(size_t i = 0; i < strlen(res); i++)
     {
-        cout << "(" << board.get_turn() << ")" << ">> ";
-    } else
-    {
-        cout << ">> ";
+        temp += tolower(res[i]);
     }
 
-    cin >> move;
-
-    if(move == "Quit" || move == "quit")
+    if(temp == "quit")
     {
         running = false;
         return false;
     }
 
-    if(move == "Reset" || move == "reset")
+    if(temp == "reset")
     {
         board = Board();
-        board.print_board();
+        board.initialize_board();
         return false;
     }
 
-    if(move == "undo" || move == "Undo")
+    if(temp.size() != 4 && !game_over)
     {
-        board.undo_move();
-        board.print_board();
-        return false;
-    }
 
-    if(!(move.size() == 4) && !game_over)
-    {
-        cout << "Please use valid square notations!" << endl;
-        return false;
-    }
-
-    if(game_over)
-    {
-        cout << "\033[033m> Please choose a valid option.\033[0m" << endl;
     }
 
     return true;
@@ -138,5 +149,20 @@ void get_moves(Piece p, int file, int rank, vector<array<int, 2>>& moves_list, v
 
         default:
             break;
+    }
+}
+
+void embed_piece(string& piece_ascii, string& square_ascii)
+{
+    for(int i = 0; i < piece_ascii.size(); i++)
+    {
+        int temp = piece_ascii[i];
+        if(temp != 32 && temp != 10)
+        {
+            square_ascii[i] = temp;
+        }
+
+        if(temp == 10) printw("\n");
+
     }
 }

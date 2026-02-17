@@ -28,8 +28,8 @@ void Board::initialize_board()
         }
     }
 
-    Piece b_pawn = Piece("\033[035mBP\033[0m", 'B', 0, true);
-    Piece w_pawn = Piece("\033[036mWP\033[0m", 'W', 0, true);
+    Piece b_pawn = Piece("BP ", 'B', 0, true);
+    Piece w_pawn = Piece("WP ", 'W', 0, true);
 
     for(int i = 0; i < 8; i++)
     {
@@ -40,17 +40,17 @@ void Board::initialize_board()
         board[6][i].set_piece(w_pawn);
     }
 
-    Piece b_rook = Piece("\033[035mBR\033[0m", 'B', 4);
-    Piece b_knight = Piece("\033[035mBN\033[0m", 'B', 2);
-    Piece b_bishop = Piece("\033[035mBB\033[0m", 'B', 3);
-    Piece b_queen = Piece("\033[035mBQ\033[0m", 'B', 5);
-    Piece b_king = Piece("\033[035mBK\033[0m", 'B', 1);
+    Piece b_rook = Piece("BR ", 'B', 4);
+    Piece b_knight = Piece("BN ", 'B', 2);
+    Piece b_bishop = Piece("BB ", 'B', 3);
+    Piece b_queen = Piece("BQ ", 'B', 5);
+    Piece b_king = Piece("BK ", 'B', 1);
 
-    Piece w_rook = Piece("\033[036mWR\033[0m", 'B', 4);
-    Piece w_knight = Piece("\033[036mWN\033[0m", 'B', 2);
-    Piece w_bishop = Piece("\033[036mWB\033[0m", 'B', 3);
-    Piece w_queen = Piece("\033[036mWQ\033[0m", 'B', 5);
-    Piece w_king = Piece("\033[036mWK\033[0m", 'B', 1);
+    Piece w_rook = Piece("WR ", 'B', 4);
+    Piece w_knight = Piece("WN ", 'B', 2);
+    Piece w_bishop = Piece("WB ", 'B', 3);
+    Piece w_queen = Piece("WQ ", 'B', 5);
+    Piece w_king = Piece("WK ", 'B', 1);
 
 
     // Setting up all the pieces by directly indexing - Don't think this is a good practice but can't really come up with another solution for this
@@ -108,26 +108,40 @@ void Board::initialize_board()
     }
 }
 
-void Board::print_board()
+void Board::print_board(WINDOW* window)
 {
+    int y, x;
+    getmaxyx(window, y, x);
+    y -= 11;
+
+    int pos_y = y/2;
+
     for(int i = 0; i < 8; i++)
     {
-        for(Square& s : board[i])
+        wmove(window, pos_y, x/2 - 12);
+        for(Square s : board[i])
         {
             if(!s.has_piece())
             {
                 if(s.get_color() == 'B')
                 {
-                    cout << "## ";
-                } else {
-                    cout << "[] ";
+                    wprintw(window, "## ");
+                } else
+                {
+                    wprintw(window, "[] ");
                 }
-            } else {
-                cout << s.get_piece().name << " ";
+            } else
+            {
+                wprintw(window, "%s", s.get_piece().name.c_str());
             }
         }
-        cout << endl;
+
+        pos_y++;
     }
+}
+
+void Board::print_score()
+{
 
 }
 
@@ -159,7 +173,7 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
     return false;
 }
 
-bool Board::move_piece(string move)
+bool Board::move_piece(char move[])
 {
     int file = static_cast<int>(move[0]) - 97;
     int rank = 56 - static_cast<int>(move[1]);
@@ -180,8 +194,8 @@ bool Board::move_piece(string move)
 
     if(!curr_square.has_piece())
     {
-        cout << "\033[33m=> \033[0m" << move.substr(0, 2) << "\033[33m is an empty square!\033[0m\n";
-        print_board();
+        cout << "\033[33m=> \033[0m" << move[0] << move[1] << "\033[33m is an empty square!\033[0m\n";
+        // print_board();
         return false;
     }
 
@@ -227,7 +241,30 @@ bool Board::move_piece(string move)
 
     if(target_square.has_piece())
     {
-        captured_pieces.push_back(target_square.get_piece());
+        Piece temp_target = target_square.get_piece();
+
+        // Update the captured_pieces list whenever a piece is captured
+        captured_pieces.push_back(temp_target);
+
+        // Update the score when a piece is captured
+        if(piece.color == 'W')
+        {
+            if(temp_target.type == 0 || temp_target.type == 2)
+            {
+                white_score += ++temp_target.type;
+            } else
+            {
+                white_score += temp_target.type;
+            }
+        } else {
+            if(temp_target.type == 0 || temp_target.type == 2)
+            {
+                black_score += ++temp_target.type;
+            } else
+            {
+                black_score += temp_target.type;
+            }
+        }
     }
 
     if(moves_buffer.size() < 3)
@@ -284,6 +321,8 @@ int Board::undo_move()
 
         board[rank][file].set_piece(captured_piece, false);
         board[target_rank][target_file].set_piece(temp, false);
+
+        captured_pieces.pop_back();
     } else
     {
         board[rank][file].clear_square();
@@ -303,6 +342,16 @@ int Board::undo_move()
 
     moves_buffer.pop_back();
     update_turn(temp.color);
+
+    if(temp.color == 'W')
+    {
+        temp.type == 1 || temp.type == 2 ? (black_score -= ++temp.type) :
+        (black_score -= temp.type);
+    } else
+    {
+        temp.type == 1 || temp.type == 2 ? (white_score -= ++temp.type) :
+        (white_score -= temp.type);
+    }
 
     return 1;
 }

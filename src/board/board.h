@@ -1,6 +1,7 @@
 #ifndef boardH
 #define boardH
 
+#include <ncurses.h>
 #include <string>
 #include <vector>
 #include <array>
@@ -19,14 +20,19 @@ private:
     vector<Piece> captured_pieces;
 
 public:
+    // Ints to store the sum of all the pieces captured by a side (black/white)
+    int white_score;
+    int black_score;
+
     void initialize_board(); // Adds all the pieces to their appropriate starting squares can also be used to reset the position of
     // all pieces back to their starting square
 
-    void print_board();
+    void print_board(WINDOW* window);
+    void print_score();
 
     // Funcitons related to the whole piece movement functionality
     bool valid_move(Piece p, int file, int rank, int target_file, int target_rank);
-    bool move_piece(string move);
+    bool move_piece(char move[]);
     int undo_move();
 
     // Fucntion related to mechaincs/game-rules surrounding the King
@@ -45,7 +51,7 @@ public:
     void update_turn(char _turn) { turn = _turn; }
 
     // Constructors
-    Board() : board(8, vector<Square>(8, Square(true))), turn('W')
+    Board() : board(8, vector<Square>(8, Square(true))), turn('W'), white_score(0), black_score(0)
     {
         initialize_board();
 
