@@ -28,8 +28,40 @@ void Board::initialize_board()
         }
     }
 
-    Piece b_pawn = Piece("BP ", 'B', 0, true);
-    Piece w_pawn = Piece("WP ", 'W', 0, true);
+    Piece b_pawn = Piece({
+        "               ",
+        "               ",
+        "     .-'-.     ",
+        "     `###'     ",
+        "     .###.     ",
+        "    .'###'.    ",
+        "    `-----'    "
+    }, {
+        "###############",
+        "###############",
+        "#####.-'-.#####",
+        "#####`###'#####",
+        "#####.###.#####",
+        "####.'###'.####",
+        "####`-----'####"
+                         }, 'B', 0, true);
+    Piece w_pawn = Piece({
+        "               ",
+        "               ",
+        "     .-'-.     ",
+        "     `. .'     ",
+        "     .' '.     ",
+        "    .'___'.    ",
+        "    `-----'    "
+    }, {
+        "###############",
+        "###############",
+        "#####.-'-.#####",
+        "#####`. .'#####",
+        "#####.' '.#####",
+        "####.'___'.####",
+        "####`-----'####"
+                         }, 'W', 0, true);
 
     for(int i = 0; i < 8; i++)
     {
@@ -40,17 +72,189 @@ void Board::initialize_board()
         board[6][i].set_piece(w_pawn);
     }
 
-    Piece b_rook = Piece("BR ", 'B', 4);
-    Piece b_knight = Piece("BN ", 'B', 2);
-    Piece b_bishop = Piece("BB ", 'B', 3);
-    Piece b_queen = Piece("BQ ", 'B', 5);
-    Piece b_king = Piece("BK ", 'B', 1);
 
-    Piece w_rook = Piece("WR ", 'B', 4);
-    Piece w_knight = Piece("WN ", 'B', 2);
-    Piece w_bishop = Piece("WB ", 'B', 3);
-    Piece w_queen = Piece("WQ ", 'B', 5);
-    Piece w_king = Piece("WK ", 'B', 1);
+    // Black Pieces
+    Piece b_rook = Piece({
+        "     _   _     ",
+        "    |#|_|#|    ",
+        "    |#####|    ",
+        "    '#####'    ",
+        "    |#####|    ",
+        "   /_.---._\\   ",
+        "   '._____.'   "
+    }, {
+        "#####_###_#####",
+        "####|#|_|#|####",
+        "####|#####|####",
+        "####'#####'####",
+        "####|#####|####",
+        "###/_.---._\\###",
+        "###'._____.'###"
+                         }, 'B', 4);
+
+    Piece b_knight = Piece({
+        "               ",
+        "     |\\.       ",
+        "    /####.     ",
+        "   /_#'###\\    ",
+        "      /###|    ",
+        "     /####|    ",
+        "    `.____.'   "
+    }, {
+        "###############",
+        "#####|\\.#######",
+        "####/####.#####",
+        "###/_#'###\\####",
+        "##### /###|####",
+        "#####/####|####",
+        "####`.____.'###"
+                         }, 'B', 2);
+
+    Piece b_bishop = Piece({
+        "      .-.      ",
+        "     .'#'.     ",
+        "     (###)     ",
+        "     `.#.'     ",
+        "      |#|      ",
+        "    ._'#'_.    ",
+        "    '--^--'    "
+    }, {
+        "######.-.######",
+        "#####.'#'.#####",
+        "#####(###)#####",
+        "#####`.#.'#####",
+        "######|#|######",
+        "####._'#'_.####",
+        "####'--^--'####"
+                         }, 'B', 3);
+
+    Piece b_queen = Piece({
+        "               ",
+        "     o   o     ",
+        " o   /\\ /\\  o  ",
+        " \\`.'##`##`'/  ",
+        "  \\########/   ",
+        "   \\_.--._/    ",
+        "   '.____.'    "
+    },{
+        "###############",
+        "#####o###o#####",
+        "#o###/\\#/\\##o##",
+        "#\\`.'##`##`'/##",
+        "##\\########/###",
+        "###\\_.--._/####",
+        "###'.____.'####"
+                         }, 'B', 5);
+
+    Piece b_king = Piece({
+        "       _       ",
+        "      ( )      ",
+        "   .-. ^ .-.   ",
+        "  :###`.'###:  ",
+        "  `.#######.'  ",
+        "   )_.---._(   ",
+        "   `._____.'   "
+    }, {
+        "###############",
+        "######( )######",
+        "###.-. ^ .-.###",
+        "##:###`.'###:##",
+        "##`.#######.'##",
+        "###)_.---._(###",
+        "###`._____.'###"
+                         }, 'B', 1);
+
+
+    // White Pieces
+    Piece w_rook = Piece({
+        "     _   _     ",
+        "    | |_| |    ",
+        "    |     |    ",
+        "    '     '    ",
+        "    |     |    ",
+        "   /_.---._\\   ",
+        "   '._____.'   "
+    }, {
+        "#####_###_#####",
+        "####| |_| |####",
+        "####|     |####",
+        "####'     '####",
+        "####|     |####",
+        "###/_.---._\\###",
+        "###'._____.'###"
+                         }, 'W', 4);
+
+    Piece w_knight = Piece({
+        "               ",
+        "     |\\.       ",
+        "    /   '.     ",
+        "   /_.'-  \\    ",
+        "      /   |    ",
+        "     /____|    ",
+        "    `.____.'   "
+    }, {
+        "###############",
+        "#####|\\.#######",
+        "####/   '.#####",
+        "###/_.'-  \\####",
+        "##### /   |####",
+        "#####/    |####",
+        "####`.____.'###"
+                         }, 'W', 2);
+
+    Piece w_bishop = Piece({
+        "      .-.      ",
+        "     .' '.     ",
+        "     (   )     ",
+        "     `. .'     ",
+        "      | |      ",
+        "    ._' '_.    ",
+        "    '--^--'    "
+    }, {
+        "######.-.######",
+        "#####.' '.#####",
+        "#####(   )#####",
+        "#####`. .'#####",
+        "######| |######",
+        "####._' '_.####",
+        "####'--^--'####"
+                         }, 'W', 3);
+
+    Piece w_queen = Piece({
+        "               ",
+        "     o   o     ",
+        " o   /\\ /\\  o  ",
+        " \\`.'  `  `'/  ",
+        "  \\        /   ",
+        "   \\_.--._/    ",
+        "   '.____.'    "
+    }, {
+        "###############",
+        "#####o###o#####",
+        "#o###/\\#/\\##o##",
+        "#\\`.'  `  `'/##",
+        "##\\        /###",
+        "###\\_.--._/####",
+        "###'.____.'####"
+                          }, 'W', 5);
+
+    Piece w_king = Piece({
+        "       _       ",
+        "      ( )      ",
+        "   .-. ^ .-.   ",
+        "  :   `.'   :  ",
+        "  `.       .'  ",
+        "   )_.---._(   ",
+        "   `._____.'   "
+    }, {
+        "###############",
+        "######( )######",
+        "###.-. ^ .-.###",
+        "##:   `.'   :##",
+        "##`.       .'##",
+        "###)_.---._(###",
+        "###`._____.'###"
+                         }, 'W', 1);
 
 
     // Setting up all the pieces by directly indexing - Don't think this is a good practice but can't really come up with another solution for this
@@ -110,39 +314,74 @@ void Board::initialize_board()
 
 void Board::print_board(WINDOW* window)
 {
-    int y, x;
-    getmaxyx(window, y, x);
-    y -= 11;
-
-    int pos_y = y/2;
+    vector<string> temp(64, "");
+    int step = 0;
 
     for(int i = 0; i < 8; i++)
     {
-        wmove(window, pos_y, x/2 - 12);
         for(Square s : board[i])
         {
+            char color = 'B';
+            if(s.get_color() != 'B')
+            {
+                color = 'W';
+            }
+            Piece piece = s.get_piece();
+
             if(!s.has_piece())
             {
-                if(s.get_color() == 'B')
+                if(color == 'B')
                 {
-                    wprintw(window, "## ");
+                    for(int j = 0; j < 7; j++)
+                    {
+                        temp[step + j] += black_sqaure_ascii[j];
+                    }
                 } else
                 {
-                    wprintw(window, "[] ");
+                    for(int j = 0; j < 7; j++)
+                    {
+                        temp[step + j] += white_sqaure_ascii[j];
+                    }
                 }
             } else
             {
-                wprintw(window, "%s", s.get_piece().name.c_str());
+                if(color == 'B')
+                {
+                    for(int j = 0; j < 7; j++)
+                    {
+                        temp[step + j] += piece.ascii_black[j];
+                    }
+                } else
+                {
+                    for(int j = 0; j < 7; j++)
+                    {
+                        temp[step + j] += piece.ascii_white[j];
+                    }
+                }
             }
+
         }
 
+        step += 7;
+    }
+
+    int pos_y = 1;
+    for(string& str : temp)
+    {
+        mvwprintw(window, pos_y, 9, "%s", str.c_str());
         pos_y++;
     }
 }
 
-void Board::print_score()
+void Board::print_score(WINDOW* window)
 {
+    int y, x;
+    getmaxyx(window, y, x);
 
+    wattron(window, A_STANDOUT | COLOR_BLACK | A_BOLD);
+    mvwprintw(window, y - 5, 1, "B:%i", black_score);
+    mvwprintw(window, y - 5, x - 5, "W:%i", white_score);
+    wattroff(window, A_STANDOUT | COLOR_BLACK | A_BOLD);
 }
 
 bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_rank)

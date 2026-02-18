@@ -31,7 +31,7 @@ void delete_win(WINDOW* window)
 }
 
 // A function to handle all the input and perform actions accordingly
-bool get_input(char res[], Board& board, bool game_over, bool& running, WINDOW* win)
+bool get_input(char res[], Board& board, bool game_over, bool& running, WINDOW* win, WINDOW* log_win)
 {
     wmove(win, 2, 3);
     wclrtobot(win);
@@ -53,6 +53,17 @@ bool get_input(char res[], Board& board, bool game_over, bool& running, WINDOW* 
         board = Board();
         board.initialize_board();
         return false;
+    }
+
+    if(temp == "undo")
+    {
+        board.undo_move();
+        return false;
+    }
+
+    if(game_over)
+    {
+
     }
 
     if(temp.size() != 4 && !game_over)
@@ -149,20 +160,5 @@ void get_moves(Piece p, int file, int rank, vector<array<int, 2>>& moves_list, v
 
         default:
             break;
-    }
-}
-
-void embed_piece(string& piece_ascii, string& square_ascii)
-{
-    for(int i = 0; i < piece_ascii.size(); i++)
-    {
-        int temp = piece_ascii[i];
-        if(temp != 32 && temp != 10)
-        {
-            square_ascii[i] = temp;
-        }
-
-        if(temp == 10) printw("\n");
-
     }
 }

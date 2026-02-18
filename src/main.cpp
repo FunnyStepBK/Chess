@@ -1,4 +1,3 @@
-#include <iostream>
 #include <ncurses.h>
 
 #include "board/board.h"
@@ -14,8 +13,11 @@ int main()
     noecho();
     keypad(stdscr, TRUE);
 
-    WINDOW* main_window = create_win(LINES, COLS/2 - 2, 0, 1);
-    WINDOW* log_window = create_win(LINES, COLS/2 - 2, 0, COLS/2 + 1);
+    int main_win_width = ((COLS/100) * 70) - 2;
+    int log_win_width = ((COLS/100) * 50) - 3;
+
+    WINDOW* main_window = create_win(LINES, main_win_width, 0, 1);
+    WINDOW* log_window = create_win(LINES, log_win_width, 0, main_win_width + 4);
 
 
     int y_main, x_main;
@@ -34,6 +36,7 @@ int main()
     while(running)
     {
         board.print_board(main_window);
+        board.print_score(main_window);
 
         wrefresh(main_window);
         wrefresh(input_window);
@@ -44,8 +47,18 @@ int main()
         echo();
         mvwgetnstr(input_window, 2, 3, res, 6);
         noecho();
-        if(!get_input(res, board, false, running, input_window)) continue;
+        if(!get_input(res, board, false, running, input_window, log_window)) continue;
 
+        if(board.move_piece(res))
+        {
+            if(board.is_checked(board.get_turn()))
+            {
+                if(board.is_checkmate(board.get_turn()))
+                {
+
+                }
+            }
+        }
 
     }
 

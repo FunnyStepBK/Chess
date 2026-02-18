@@ -24,11 +24,31 @@ public:
     int white_score;
     int black_score;
 
+    vector<string> black_sqaure_ascii = {
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        "###############",
+        "###############"
+    };
+
+    vector<string> white_sqaure_ascii = {
+        "               ",
+        "               ",
+        "               ",
+        "               ",
+        "               ",
+        "               ",
+        "               "
+    };
+
     void initialize_board(); // Adds all the pieces to their appropriate starting squares can also be used to reset the position of
     // all pieces back to their starting square
 
     void print_board(WINDOW* window);
-    void print_score();
+    void print_score(WINDOW* window);
 
     // Funcitons related to the whole piece movement functionality
     bool valid_move(Piece p, int file, int rank, int target_file, int target_rank);

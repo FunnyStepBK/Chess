@@ -1,6 +1,7 @@
 #ifndef pieceH
 #define pieceH
 
+#include <vector>
 #include <string>
 #include <optional>
 #include <array>
@@ -13,28 +14,24 @@ private:
     // optional<bool> is_checked;
 
 public:
-    string name;
+    vector<string> ascii_white;
+    vector<string> ascii_black;
     char color;
     int type;
     bool on_start;
 
-
-    // mutators
-
-    // accessors
-
-    // Constructors
+// Constructors
     Piece()
     {
     }
-    Piece(string new_piece, char new_color)
+
+    Piece(vector<string> new_white_ascii, vector<string> new_black_ascii, char new_color, int _type) : ascii_white(new_white_ascii),
+        ascii_black(new_black_ascii), color(new_color), type(_type)
     {
-        Piece(new_piece, new_color, -1);
+
     }
-    Piece(string new_piece, char new_color, int _type) : name(new_piece), color(new_color), type(_type)
-    {
-    }
-    Piece(string new_piece, char new_color, int _type, bool _on_start) : name(new_piece), color(new_color), type(_type), on_start(_on_start)
+    Piece(vector<string> new_white_ascii, vector<string> new_black_ascii, char new_color, int _type, bool _on_start) : ascii_white(new_white_ascii),
+        ascii_black(new_black_ascii), color(new_color), type(_type), on_start(_on_start)
     {
     }
 };

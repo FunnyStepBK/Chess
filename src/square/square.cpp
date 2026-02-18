@@ -1,7 +1,3 @@
-#include <vector>
-#include <array>
-
-#include "../board/board.h"
 #include "square.h"
 
 using namespace std;
