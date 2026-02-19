@@ -2,6 +2,7 @@
 
 #include "board/board.h"
 #include "./helper-functions.h"
+#include "./windows/windows.hpp"
 
 using namespace std;
 
@@ -13,22 +14,24 @@ int main()
     noecho();
     keypad(stdscr, TRUE);
 
-    int main_win_width = ((COLS/100) * 70) - 2;
-    int log_win_width = ((COLS/100) * 50) - 3;
+    start_color();
+    use_default_colors();
+    init_pair(1, COLOR_RED, -1);
+    init_pair(2, COLOR_BLUE, -1);
+    init_pair(3, COLOR_YELLOW, -1);
 
-    WINDOW* main_window = create_win(LINES, main_win_width, 0, 1);
-    WINDOW* log_window = create_win(LINES, log_win_width, 0, main_win_width + 4);
+    vector<WINDOW*> windows_collection = initialize_windows();
 
+    WINDOW* main_window = windows_collection[0];
+    WINDOW* log_window = windows_collection[1];
 
-    int y_main, x_main;
-    getmaxyx(main_window, y_main, x_main);
+    WINDOW* input_window = windows_collection[2];
 
-    WINDOW* input_window = newwin(3, x_main - 2, y_main - 4, 2);
+    WINDOW* moves_log_win = windows_collection[3];
+    WINDOW* eval_log_win = windows_collection[4];
+    WINDOW* warns_log_win = windows_collection[5];
 
-    keypad(input_window, TRUE);
-    wborder(input_window, ' ', ' ', ACS_HLINE, ' ',  ACS_HLINE, ACS_HLINE, ' ', ' ');
-
-    wrefresh(input_window);
+    setlocale(LC_ALL, "");
 
     mvwprintw(input_window, 1, 0, "> Type 'quit'/'Quit' to quit or 'reset'/'Reset' to reset the board\n>> ");
 
@@ -38,33 +41,62 @@ int main()
         board.print_board(main_window);
         board.print_score(main_window);
 
-        wrefresh(main_window);
-        wrefresh(input_window);
-        wrefresh(log_window);
-
+        // Refresh all the windows in the collection
+        refresh_win(windows_collection);
 
         char res[6];
-        echo();
-        mvwgetnstr(input_window, 2, 3, res, 6);
-        noecho();
-        if(!get_input(res, board, false, running, input_window, log_window)) continue;
+        if(!handle_input(res, board, false, running, input_window, warns_log_win)) continue;
 
-        if(board.move_piece(res))
+        wclear(warns_log_win);
+        box(warns_log_win, 0, 0);
+
+        // If the move was valid and player then check - If the opponent player got a check? If yes, then check if it's a checkmate
+        float y, x;
+        getmaxyx(warns_log_win, y, x);
+
+        if(board.move_piece(res, warns_log_win))
         {
             if(board.is_checked(board.get_turn()))
             {
                 if(board.is_checkmate(board.get_turn()))
                 {
+                    wattron(warns_log_win, COLOR_PAIR(2));
+                    for(int i = 0; i < board.mate_warn_ascii.size(); i++)
+                    {
+                        mvwprintw(warns_log_win, 3 + i, 2, "%s", board.mate_warn_ascii[i].c_str());
+                    }
+                    wattroff(warns_log_win, COLOR_PAIR(2));
+
+                    mvwprintw(input_window, 1, 0, "Type 'quit'/'Quit' to quit, or type 'reset'/'Reset' to reset the board and play another game!");
+
+                    wrefresh(warns_log_win);
+                    wrefresh(input_window);
+
+                    while(handle_input(res, board, true, running, input_window, warns_log_win)) {
+                        mvwprintw(warns_log_win, 1, 1, "> Please choose a valid option.");
+                    }
+
+                } else
+                {
+                    wattron(warns_log_win, COLOR_PAIR(3));
+                    for(int i = 0; i < board.check_warn_ascii.size(); i++)
+                    {
+                        mvwprintw(warns_log_win, 3 + i, (x/100) * 21, "%s", board.check_warn_ascii[i].c_str());
+                    }
+                    wattroff(warns_log_win, COLOR_PAIR(3));
 
                 }
+
             }
+
         }
 
     }
 
-    delete_win(main_window);
-    delete_win(input_window);
-    delete_win(log_window);
+    for(WINDOW* w : windows_collection)
+    {
+        delete_win(w);
+    }
 
     refresh();
     endwin();

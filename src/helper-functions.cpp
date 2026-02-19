@@ -7,32 +7,13 @@
 #include "../src/board/pieces/move-sets/move-set.h"
 #include "../src/board/board.h"
 
-// A function to create windows with attributes
-WINDOW* create_win(int height, int width, int starty, int startx)
-{
-    WINDOW* temp_win;
-
-    temp_win = newwin(height, width, starty, startx);
-
-    box(temp_win, 0, 0);
-    wrefresh(temp_win);
-
-    return temp_win;
-}
-
-// A function to delete a window
-void delete_win(WINDOW* window)
-{
-    // Replaces the characters used for creating the border of a window with 'Space' so we won't get any ugly remnants
-    wborder(window, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
-
-    wrefresh(window);
-    delwin(window);
-}
-
 // A function to handle all the input and perform actions accordingly
-bool get_input(char res[], Board& board, bool game_over, bool& running, WINDOW* win, WINDOW* log_win)
+bool handle_input(char res[], Board& board, bool game_over, bool& running, WINDOW* win, WINDOW* log_win)
 {
+    echo();
+    mvwgetnstr(win, 2, 3, res, 6);
+    noecho();
+
     wmove(win, 2, 3);
     wclrtobot(win);
 
@@ -55,20 +36,20 @@ bool get_input(char res[], Board& board, bool game_over, bool& running, WINDOW* 
         return false;
     }
 
-    if(temp == "undo")
-    {
-        board.undo_move();
-        return false;
-    }
-
     if(game_over)
     {
+        return true;
+    }
 
+    if(temp == "undo")
+    {
+        board.undo_move(log_win);
+        return false;
     }
 
     if(temp.size() != 4 && !game_over)
     {
-
+        mvwprintw(log_win, 1, 1, "> Invalid notation! Please use standard notations to move the pieces.");
     }
 
     return true;

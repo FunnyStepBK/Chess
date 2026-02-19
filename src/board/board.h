@@ -7,7 +7,7 @@
 #include <array>
 #include <deque>
 
-#include "../square/square.h"
+#include "./square/square.h"
 
 class Board
 {
@@ -44,6 +44,44 @@ public:
         "               "
     };
 
+    vector<string> check_warn_ascii = {
+        " a88888b. dP                         dP       dP",
+        "d8'   `88 88                         88       88",
+        "88        88d888b. .d8888b. .d8888b. 88  .dP  88",
+        "88        88'  `88 88ooood8 88'  `'' 88888'   dP",
+        "Y8.   .88 88    88 88.  ... 88.  ... 88  `8b.   ",
+        " Y88888P' dP    dP `88888P' `88888P' dP   `YP oo"
+    };
+
+    vector<string> mate_warn_ascii = {
+        " a88888b. dP                         dP                             dP           ",
+        "d8'   `88 88                         88                             88           ",
+        "88        88d888b. .d8888b. .d8888b. 88  .dP  88d8b.d8b. .d8888b. d8888P .d8888b.",
+        "88        88'  `88 88ooood8 88'  `'' 88888'   88'`88'`88 88'  `88   88   88ooood8",
+        "Y8.   .88 88    88 88.  ... 88.  ... 88  `8b. 88  88  88 88.  .88   88   88.  ...",
+        " Y88888P' dP    dP `88888P' `88888P' dP   `YP dP  dP  dP `88888P8   dP   `88888P'"
+    };
+
+    vector<string> illegal_warn_ascii = {
+        "oo dP dP                            dP                                         dP",
+        "   88 88                            88                                         88",
+        "dP 88 88 .d8888b. .d8888b. .d8888b. 88   88d8b.d8b. .d8888b. dP   .dP .d8888b. 88",
+        "88 88 88 88ooood8 88'  `88 88'  `88 88   88'`88'`88 88'  `88 88   d8' 88ooood8 dP",
+        "88 88 88 88.  ... 88.  .88 88.  .88 88   88  88  88 88.  .88 88 .88'  88.  ...   ",
+        "dP dP dP `88888P' `8888P88 `88888P8 dP   dP  dP  dP `88888P' 8888P'   `88888P' oo",
+        "                       .88                                                       ",
+        "                   d8888P                                                        "
+    };
+
+    vector<string> invalid_warn_ascii = {
+        "dP                            dP oo       dP  dP ",
+        "88                            88          88  88 ",
+        "88 88d888b. dP   .dP .d8888b. 88 dP .d888b88  88 ",
+        "88 88'  `88 88   d8' 88'  `88 88 88 88'  `88  dP ",
+        "88 88    88 88 .88'  88.  .88 88 88 88.  .88     ",
+        "dP dP    dP 8888P'   `88888P8 dP dP `88888P8  oo "
+    };
+
     void initialize_board(); // Adds all the pieces to their appropriate starting squares can also be used to reset the position of
     // all pieces back to their starting square
 
@@ -52,8 +90,8 @@ public:
 
     // Funcitons related to the whole piece movement functionality
     bool valid_move(Piece p, int file, int rank, int target_file, int target_rank);
-    bool move_piece(char move[]);
-    int undo_move();
+    bool move_piece(char move[], WINDOW* warn_log_win);
+    int undo_move(WINDOW* warn_log_win);
 
     // Fucntion related to mechaincs/game-rules surrounding the King
     bool is_king_safe(Piece piece, int file, int rank, int target_file, int target_rank);

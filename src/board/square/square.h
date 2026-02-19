@@ -6,7 +6,7 @@
 #include <vector>
 #include <optional>
 
-#include "../board/pieces/pieces.h"
+#include "../pieces/pieces.h"
 
 using namespace std;
 

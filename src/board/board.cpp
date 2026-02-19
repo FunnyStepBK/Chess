@@ -4,7 +4,7 @@
 #include <array>
 
 #include "board.h"
-#include "../square/square.h"
+#include "./square/square.h"
 #include "./pieces/move-sets/move-set.h"
 #include "../helper-functions.h"
 
@@ -412,8 +412,11 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
     return false;
 }
 
-bool Board::move_piece(char move[])
+bool Board::move_piece(char move[], WINDOW* warn_log_win)
 {
+    float y, x;
+    getmaxyx(warn_log_win, y, x);
+
     int file = static_cast<int>(move[0]) - 97;
     int rank = 56 - static_cast<int>(move[1]);
 
@@ -422,7 +425,7 @@ bool Board::move_piece(char move[])
 
     if (out_of_bounds(rank, file) || out_of_bounds(target_rank, target_file))
     {
-        cout << "Invalid notation! Please use standard notations to move the pieces" << endl;
+        mvwprintw(warn_log_win, 1, 1, "> Invalid notation! Please use standard notations to move the pieces.");
         return false;
     }
 
@@ -433,37 +436,42 @@ bool Board::move_piece(char move[])
 
     if(!curr_square.has_piece())
     {
-        cout << "\033[33m=> \033[0m" << move[0] << move[1] << "\033[33m is an empty square!\033[0m\n";
-        // print_board();
+        wattron(warn_log_win, COLOR_PAIR(1));
+        for(int i = 0; i < invalid_warn_ascii.size(); i++)
+        {
+            mvwprintw(warn_log_win, 3 + i, (x/100) * 23, "%s", invalid_warn_ascii[i].c_str());
+        }
+        wattroff(warn_log_win, COLOR_PAIR(1));
+
         return false;
     }
 
     piece = curr_square.get_piece();
 
-    if(get_turn() != piece.color)
-    {
-        cout << "Not your turn! It's your opponent's turn to move their piece." << endl;
-        return false;
-    }
-
     if(get_turn() == piece.color && is_checked(get_turn()))
     {
         if(!is_king_safe(piece, file, rank, target_file, target_rank))
         {
-            if(piece.type == 1)
+            wattron(warn_log_win, COLOR_PAIR(1));
+            for(int i = 0; i < illegal_warn_ascii.size(); i++)
             {
-                cout << "\033[31m> Illegal Move!\033[0m" << endl;
-                return false;
+                mvwprintw(warn_log_win, 3 + i, 2, "%s", illegal_warn_ascii[i].c_str());
             }
-            cout << "\033[31m> Illegal Move!\033[0m" << endl;
-            cout << "Your king is in danger! Move it to a safe position first." << endl;
+            wattroff(warn_log_win, COLOR_PAIR(1));
+
             return false;
         }
     }
 
-    if(!valid_move(piece, file, rank, target_file, target_rank))
+    if(get_turn() != piece.color || !  valid_move(piece, file, rank, target_file, target_rank))
     {
-        cout << "\033[31m> Invalid Move!\033[0m" << endl;
+        wattron(warn_log_win, COLOR_PAIR(1));
+        for(int i = 0; i < invalid_warn_ascii.size(); i++)
+        {
+            mvwprintw(warn_log_win, 3 + i, (x/100) * 23, "%s", invalid_warn_ascii[i].c_str());
+        }
+        wattroff(warn_log_win, COLOR_PAIR(1));
+
         return false;
     }
 
@@ -535,13 +543,13 @@ bool Board::move_piece(char move[])
     return true;
 }
 
-int Board::undo_move()
+int Board::undo_move(WINDOW* warn_log_win)
 {
     int s = moves_buffer.size();
 
     if(s == 0)
     {
-        cout << "> No moves in the moves buffer, it only stores the last 3 moves." << endl;
+        mvwprintw(warn_log_win, 1, 1, "> No moves in the moves buffer, it only stores the last 3 moves.");
         return 0;
     }
 

@@ -3,6 +3,7 @@ project (chess)
 
 find_package(Catch2 3 REQUIRED)
 
+set(CURSES_NEED_WIDE TRUE)
 set(CURSES_NEED_NCURSES TRUE)
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})
@@ -11,8 +12,10 @@ add_executable(tests
 tests/test.cpp
 src/helper-functions.h
 src/helper-functions.cpp
-src/square/square.h
-src/square/square.cpp
+src/windows/windows.hpp
+src/windows/windows.cpp
+src/board/square/square.h
+src/board/square/square.cpp
 src/board/board.h
 src/board/board.cpp
 src/board/pieces/pieces.h
@@ -29,8 +32,10 @@ add_executable(out
 src/main.cpp
 src/helper-functions.h
 src/helper-functions.cpp
-src/square/square.h
-src/square/square.cpp
+src/windows/windows.hpp
+src/windows/windows.cpp
+src/board/square/square.h
+src/board/square/square.cpp
 src/board/board.h
 src/board/board.cpp
 src/board/pieces/pieces.h
@@ -39,4 +44,4 @@ src/board/pieces/move-sets/move-set.h
 src/board/pieces/move-sets/move-set.cpp
 )
 target_link_libraries(out ${CURSES_LIBRARIES})
-add_compile_options(-Wall -lncurses)
+add_compile_options(-Wall -lncursesw)
