@@ -1,4 +1,3 @@
-#include <iostream>
 #include <vector>
 #include <string>
 #include <array>
@@ -669,14 +668,17 @@ int Board::undo_move(WINDOW* warn_log_win)
     moves_buffer.pop_back();
     update_turn(temp.color);
 
-    if(temp.color == 'W')
+    if(captured)
     {
-        temp.type == 0 || temp.type == 2 ? (black_score -= 1 + temp.type) :
-        (black_score -= temp.type);
-    } else
-    {
-        temp.type == 0 || temp.type == 2 ? (white_score -= 1 + temp.type) :
-        (white_score -= temp.type);
+        if(temp.color == 'B')
+        {
+            temp.type == 0 || temp.type == 2 ? (black_score -= 1 + temp.type) :
+            (black_score -= temp.type);
+        } else
+        {
+            temp.type == 0 || temp.type == 2 ? (white_score -= 1 + temp.type) :
+            (white_score -= temp.type);
+        }
     }
 
     return 1;
