@@ -398,6 +398,56 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
             n = -1;
         }
 
+        int size = moves_buffer.size();
+
+        int last_move_target_rank;
+        int last_move_target_file;
+        int last_move_rank;
+
+        if(size != 0)
+        {
+            last_move_target_rank = moves_buffer[moves_buffer.size() - 1][3];
+            last_move_target_file = moves_buffer[moves_buffer.size() - 1][2];
+            last_move_rank = moves_buffer[moves_buffer.size() - 1][1];
+        }
+
+        int valid_rank;
+        int valid_file;
+        int counter = 0;
+
+        Square valid_square;
+
+        for(array<int, 2> a : moves_list)
+        {
+            valid_rank = a[0];
+            valid_file = a[1];
+
+            valid_square = board[valid_rank][valid_file];
+
+            // A check so pawns can't move to diagonal squares when there is no piece to capture on that square
+            if(valid_file != file && !valid_square.has_piece())
+            {
+
+                // A check for en-passant
+                valid_square = board[rank][valid_file];
+                if(valid_square.has_piece() && valid_square.get_piece().type == 0 && size != 0)
+                {
+                    // Here we are doing last_move_rank - 2 * n, because we want to check if last_move_rank is 2 squares away from last_move_target_rank
+                    // and the reason it's - 2 rather then + 2 is cuz if the value of n is 1 it will become -1 as that's what the value of n
+                    // would have been on the last iteration of valid_move
+                    if((last_move_target_rank == rank && last_move_target_file == valid_file) && last_move_rank - 2 * n == last_move_target_rank)
+                    {
+                        continue;
+                    }
+                }
+
+                moves_list.erase(moves_list.begin() + counter);
+            }
+
+            counter++;
+        }
+
+        // A check so a pawn can't capture pieces by moving forward
         if((board[rank + n][file].has_piece() || board[rank +(n * 2)][file].has_piece()) && target_file == file) return false;
     }
 
@@ -414,8 +464,7 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
 
 bool Board::move_piece(char move[], WINDOW* warn_log_win)
 {
-    float y, x;
-    getmaxyx(warn_log_win, y, x);
+    float x = getmaxx(warn_log_win);
 
     int file = static_cast<int>(move[0]) - 97;
     int rank = 56 - static_cast<int>(move[1]);
@@ -498,7 +547,7 @@ bool Board::move_piece(char move[], WINDOW* warn_log_win)
         {
             if(temp_target.type == 0 || temp_target.type == 2)
             {
-                white_score += ++temp_target.type;
+                white_score += 1 + temp_target.type;
             } else
             {
                 white_score += temp_target.type;
@@ -506,7 +555,7 @@ bool Board::move_piece(char move[], WINDOW* warn_log_win)
         } else {
             if(temp_target.type == 0 || temp_target.type == 2)
             {
-                black_score += ++temp_target.type;
+                black_score += 1 + temp_target.type;
             } else
             {
                 black_score += temp_target.type;
@@ -525,8 +574,28 @@ bool Board::move_piece(char move[], WINDOW* warn_log_win)
         moves_buffer.push_back({file, rank, target_file, target_rank, 0});
     }
 
-    curr_square.clear_square();
-    target_square.set_piece(piece, false);
+    // Remove the pawn that was captured by en-passant
+    if(piece.type == 0 && target_file != file && !target_square.has_piece())
+    {
+        int n = piece.color == 'B' ? -1 : +1;
+
+        int captured_rank = target_rank + n;
+
+        moves_buffer.pop_back();
+        moves_buffer.push_back({file, rank, target_file, captured_rank, 1});
+        captured_pieces.push_back(board[captured_rank][target_file].get_piece());
+
+        board[captured_rank][target_file].clear_square();
+        curr_square.clear_square();
+        target_square.set_piece(piece, false);
+
+    } else
+    {
+        curr_square.clear_square();
+        target_square.set_piece(piece, false);
+    }
+
+
     if(target_square.get_piece().type == 0 && target_square.get_piece().on_start == true)
     {
         target_square.update_position(false);
@@ -553,37 +622,47 @@ int Board::undo_move(WINDOW* warn_log_win)
         return 0;
     }
 
-    int target_file = moves_buffer[s-1][0];
-    int target_rank = moves_buffer[s-1][1];
-    int file = moves_buffer[s-1][2];
-    int rank = moves_buffer[s-1][3];
+    int file = moves_buffer[s-1][0];
+    int rank = moves_buffer[s-1][1];
+    int target_file = moves_buffer[s-1][2];
+    int target_rank = moves_buffer[s-1][3];
 
     int captured = moves_buffer[s-1][4];
 
-    Piece temp = board[rank][file].get_piece();
+    int n = get_turn() == 'B' ? -1 : +1;
+
+    Piece temp = board[target_rank][target_file].get_piece();
+
+    // if(!board[target_rank][target_file].has_piece()) let's us check wether the last move was en-passant or not - As it is the only move type in which
+    // the capturing piece does not move to the square of the piece that get's captured
+    if(!board[target_rank][target_file].has_piece())
+    {
+        temp = board[target_rank + n][target_file].get_piece();
+    }
 
     if(captured)
     {
         Piece captured_piece = captured_pieces[captured_pieces.size() - 1];
 
-        board[rank][file].set_piece(captured_piece, false);
-        board[target_rank][target_file].set_piece(temp, false);
+        if(!board[target_rank][target_file].has_piece())
+        {
+            board[target_rank + n][target_file].clear_square();
+        }
+
+        board[target_rank][target_file].set_piece(captured_piece, false);
+        board[rank][file].set_piece(temp, false);
 
         captured_pieces.pop_back();
     } else
     {
-        board[rank][file].clear_square();
-        board[target_rank][target_file].set_piece(temp, false);
+        board[target_rank][target_file].clear_square();
+        board[rank][file].set_piece(temp, false);
     }
 
-    int row = 6;
-    if(temp.color == 'B')
+    int row = temp.color == 'B' ? 1 : 6;
+    if(temp.type == 0 && rank == row)
     {
-        row = 1;
-    }
-    if(temp.type == 0 && target_rank == row)
-    {
-        board[target_rank][target_file].update_position(true);
+        board[rank][file].update_position(true);
     }
 
 
@@ -592,11 +671,11 @@ int Board::undo_move(WINDOW* warn_log_win)
 
     if(temp.color == 'W')
     {
-        temp.type == 1 || temp.type == 2 ? (black_score -= ++temp.type) :
+        temp.type == 0 || temp.type == 2 ? (black_score -= 1 + temp.type) :
         (black_score -= temp.type);
     } else
     {
-        temp.type == 1 || temp.type == 2 ? (white_score -= ++temp.type) :
+        temp.type == 0 || temp.type == 2 ? (white_score -= 1 + temp.type) :
         (white_score -= temp.type);
     }
 

@@ -14,6 +14,9 @@ bool handle_input(char res[], Board& board, bool game_over, bool& running, WINDO
     mvwgetnstr(win, 2, 3, res, 6);
     noecho();
 
+    wclear(log_win);
+    box(log_win, 0, 0);
+
     wmove(win, 2, 3);
     wclrtobot(win);
 
@@ -85,24 +88,6 @@ void get_moves(Piece p, int file, int rank, vector<array<int, 2>>& moves_list, v
 
             MoveSet::travel_diagonally(board, rank + n, file - 1, 0, 0, 1, moves_list, p.color, false);
             MoveSet::travel_diagonally(board, rank + n, file + 1, 0, 0, 1, moves_list, p.color, false);
-
-            int temp_rank;
-            int temp_file;
-            int counter = 0;
-
-            for(array<int, 2> a : moves_list)
-            {
-                temp_rank = a[0];
-                temp_file = a[1];
-
-
-                if(temp_file != file && !board[temp_rank][temp_file].has_piece())
-                {
-                    moves_list.erase(moves_list.begin() + counter);
-                }
-
-                counter++;
-            }
 
             break;
         }

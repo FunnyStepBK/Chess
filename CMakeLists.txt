@@ -44,4 +44,3 @@ src/board/pieces/move-sets/move-set.h
 src/board/pieces/move-sets/move-set.cpp
 )
 target_link_libraries(out ${CURSES_LIBRARIES})
-add_compile_options(-Wall -lncursesw)
