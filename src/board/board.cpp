@@ -28,48 +28,13 @@ void Board::initialize_board()
         }
     }
 
-    Piece b_pawn = Piece({
-        "               ",
-        "               ",
-        "     .-'-.     ",
-        "     `###'     ",
-        "     .###.     ",
-        "    .'###'.    ",
-        "    `-----'    "
-    }, {
-        "###############",
-        "###############",
-        "#####.-'-.#####",
-        "#####`###'#####",
-        "#####.###.#####",
-        "####.'###'.####",
-        "####`-----'####"
-                         }, 'B', 0, true);
-    Piece w_pawn = Piece({
-        "               ",
-        "               ",
-        "     .-'-.     ",
-        "     `. .'     ",
-        "     .' '.     ",
-        "    .'___'.    ",
-        "    `-----'    "
-    }, {
-        "###############",
-        "###############",
-        "#####.-'-.#####",
-        "#####`. .'#####",
-        "#####.' '.#####",
-        "####.'___'.####",
-        "####`-----'####"
-                         }, 'W', 0, true);
-
     for(int i = 0; i < 8; i++)
     {
         board[1][i].is_empty = false;
-        board[1][i].set_piece(b_pawn);
+        board[1][i].set_piece(B_PAWN);
 
         board[6][i].is_empty = false;
-        board[6][i].set_piece(w_pawn);
+        board[6][i].set_piece(W_PAWN);
     }
 
 
@@ -407,24 +372,8 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
         captured_pieces.push_back(temp_target);
 
         // Update the score when a piece is captured
-        if(piece.color == 'W')
-        {
-            if(temp_target.type == 0 || temp_target.type == 2)
-            {
-                white_score += 1 + temp_target.type;
-            } else
-            {
-                white_score += temp_target.type;
-            }
-        } else {
-            if(temp_target.type == 0 || temp_target.type == 2)
-            {
-                black_score += 1 + temp_target.type;
-            } else
-            {
-                black_score += temp_target.type;
-            }
-        }
+        increment_score(temp_target);
+
     }
 
     if(moves_buffer.size() < 3)
@@ -446,17 +395,15 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
         int captured_rank = target_rank + n;
 
         moves_buffer.pop_back();
-        moves_buffer.push_back({file, rank, target_file, captured_rank, 1});
+        moves_buffer.push_back({file, rank, target_file, captured_rank, 2});
         captured_pieces.push_back(board[captured_rank][target_file].get_piece());
 
         board[captured_rank][target_file].clear_square();
-        curr_square.clear_square();
-        target_square.set_piece(piece, false);
+        move_to_square(curr_square, target_square, piece);
 
     } else
     {
-        curr_square.clear_square();
-        target_square.set_piece(piece, false);
+        move_to_square(curr_square, target_square, piece);
     }
 
     if(piece.color == 'W')
@@ -495,6 +442,8 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
                     break;
             }
 
+            int& last_move_type = moves_buffer[moves_buffer.size() - 1][4];
+            last_move_type = last_move_type == 1 ? 4 : 3;
         }
 
     }
@@ -516,65 +465,86 @@ int Board::undo_move(WINDOW* warn_log_win)
 
     int file = moves_buffer[s-1][0];
     int rank = moves_buffer[s-1][1];
-    int target_file = moves_buffer[s-1][2];
-    int target_rank = moves_buffer[s-1][3];
+    int current_file = moves_buffer[s-1][2];
+    int current_rank = moves_buffer[s-1][3];
 
-    int captured = moves_buffer[s-1][4];
+    int move_type = moves_buffer[s-1][4];
 
     int n = get_turn() == 'B' ? -1 : +1;
 
-    Piece temp = board[target_rank][target_file].get_piece();
+    Square& initial_square = board[rank][file];
 
-    // if(!board[target_rank][target_file].has_piece()) let's us check wether the last move was en-passant or not - As it is the only move type in which
-    // the capturing piece does not move to the square of the piece that get's captured
-    if(!board[target_rank][target_file].has_piece())
+    Square& current_square = board[current_rank][current_file];
+
+    Piece moved_piece = move_type == 2 && !current_square.has_piece() ? board[current_rank + n][current_file].get_piece() : current_square.get_piece();
+
+    switch(move_type)
     {
-        temp = board[target_rank + n][target_file].get_piece();
-    }
 
-    if(captured)
-    {
-        Piece captured_piece = captured_pieces[captured_pieces.size() - 1];
+        // if move_type is 3, we can simply set replace the temp piece with a pawn of respective color
+        case 3:
+            Board::convert_to_pawn(moved_piece);
+            [[fallthrough]];
 
-        if(!board[target_rank][target_file].has_piece())
-        {
-            board[target_rank + n][target_file].clear_square();
+        // If move_type is 0, we clear the current square and set piece on initial square
+        case 0: {
+            current_square.clear_square();
+            initial_square.set_piece(moved_piece, false);
+            break;
         }
 
-        board[target_rank][target_file].set_piece(captured_piece, false);
-        board[rank][file].set_piece(temp, false);
+        // If move_type is 2, we can just clear the {current_rank + n, curren_file} square and how we have handled temp's declaration let's us
+        // get away with only this much extra code for en-passant.
+        case 2:
+            board[current_rank + n][current_file].clear_square();
+            [[fallthrough]];
 
-        captured_pieces.pop_back();
-    } else
-    {
-        board[target_rank][target_file].clear_square();
-        board[rank][file].set_piece(temp, false);
+        // If move_type is 1, we can re-store the piece that was last captured in the captured_pieces vector then set it to target_square
+        // and set the capturing piece to it's initial square.
+        case 1: {
+            undo_capture(current_square, initial_square, moved_piece);
+            break;
+        }
+
+        // If move_type is 4, Convert the moved piece to a pawn respecitve to it's color and then just undo capture
+        case 4: {
+            Board::convert_to_pawn(moved_piece);
+            undo_capture(current_square, initial_square, moved_piece);
+            break;
+        }
+
+        // Still need to do castling
+        case 5: {
+
+        }
+
     }
 
-    int row = temp.color == 'B' ? 1 : 6;
-    if(temp.type == 0 && rank == row)
+    int row = moved_piece.color == 'B' ? 1 : 6;
+    if(moved_piece.type == 0 && rank == row)
     {
         board[rank][file].update_position(true);
     }
 
-
     moves_buffer.pop_back();
-    update_turn(temp.color);
+    update_turn(moved_piece.color);
 
-    if(captured)
+    if(move_type == 1)
     {
-        if(temp.color == 'B')
-        {
-            temp.type == 0 || temp.type == 2 ? (black_score -= 1 + temp.type) :
-            (black_score -= temp.type);
-        } else
-        {
-            temp.type == 0 || temp.type == 2 ? (white_score -= 1 + temp.type) :
-            (white_score -= temp.type);
-        }
+        decrement_score(moved_piece);
     }
 
     return 1;
+}
+
+void Board::undo_capture(Square& current_square, Square& initial_square, Piece capturing_piece)
+{
+    Piece captured_piece = captured_pieces[captured_pieces.size() - 1];
+
+    current_square.set_piece(captured_piece, false);
+    initial_square.set_piece(capturing_piece, false);
+
+    captured_pieces.pop_back();
 }
 
 int Board::prompt_promotion(WINDOW* input_window, WINDOW* warn_log_win)
@@ -777,4 +747,54 @@ bool Board::is_checkmate(char color)
     }
 
     return true;
+}
+
+void Board::increment_score(Piece piece)
+{
+    if(piece.color == 'B')
+    {
+        if(piece.type == 0 || piece.type == 2)
+        {
+            white_score += 1 + piece.type;
+        } else
+        {
+            white_score += piece.type;
+        }
+    } else {
+        if(piece.type == 0 || piece.type == 2)
+        {
+            black_score += 1 + piece.type;
+        } else
+        {
+            black_score += piece.type;
+        }
+    }
+}
+
+void Board::decrement_score(Piece piece)
+{
+    if(piece.color == 'B')
+    {
+        piece.type == 0 ||piece.type == 2 ? (black_score -= 1 + piece.type) :
+        (black_score -= piece.type);
+    } else
+    {
+        piece.type == 0 ||piece.type == 2 ? (white_score -= 1 + piece.type) :
+        (white_score -= piece.type);
+    }
+}
+
+void Board::convert_to_pawn(Piece& piece)
+{
+    piece = W_PAWN;
+    if (piece.color == 'B')
+    {
+        piece = B_PAWN;
+    }
+}
+
+void Board::move_to_square(Square& curr_square, Square& target_square, Piece piece)
+{
+    curr_square.clear_square();
+    target_square.set_piece(piece, false);
 }

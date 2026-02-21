@@ -16,7 +16,16 @@ private:
     array<int, 2> WKing_square;
     array<int, 2> BKing_square;
     char turn;
+
+    // Format for the moves_buffer : {int file, int rank, int target_file, int target_rank, int move_type}
+    // 0 - regular move
+    // 1 - A piece captured another piece
+    // 2 - en-passant move
+    // 3 - Pawn promotion
+    // 4 - Pawn promotion by capturing a piece
+    // 5 - castling
     deque<array<int, 5>> moves_buffer;
+
     vector<Piece> captured_pieces;
 
 public:
@@ -91,7 +100,10 @@ public:
     // Funcitons related to the whole piece movement functionality
     bool valid_move(Piece p, int file, int rank, int target_file, int target_rank);
     bool move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win);
+
+    // Funcitons related to undo-redo stuff
     int undo_move(WINDOW* warn_log_win);
+    void undo_capture(Square& current_square, Square& initial_square, Piece capturing_piece);
 
     // A function that will prompt a player and get thier res when a pawn reaches it's promotion rank
     int prompt_promotion(WINDOW* input_window, WINDOW* warn_log_win);
@@ -100,6 +112,24 @@ public:
     bool is_king_safe(Piece piece, int file, int rank, int target_file, int target_rank);
     bool is_checked(char color);
     bool is_checkmate(char color);
+
+    // Increments the score of the provided piece's side
+    void increment_score(Piece piece);
+
+    // Decrements the score of the provided piece's side
+    void decrement_score(Piece piece);
+
+
+    // Static functions
+
+        // A function to save extra lines of code
+        static void convert_to_pawn(Piece& piece);
+
+        // Clear the curr_square and set the provided piece on the target_square
+        static void move_to_square(Square& curr_square, Square& target_square, Piece piece);
+
+    // -- X
+
 
     // accessors
     array<int, 2> get_wk_position() { return WKing_square; }

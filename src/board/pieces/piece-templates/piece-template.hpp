@@ -3,6 +3,9 @@
 
 #include "../pieces.h"
 
+extern Piece B_PAWN;
+extern Piece W_PAWN;
+
 extern Piece W_ROOK_TEMPLATE;
 extern Piece W_KNIGHT_TEMPLATE;
 extern Piece W_BISHOP_TEMPLATE;
