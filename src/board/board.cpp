@@ -277,8 +277,7 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
         }
 
         // A check so a pawn can't capture pieces by moving forward
-        if(((board[rank + n][file].has_piece() && rank + n == target_rank) || (board[rank +(n * 2)][file].has_piece() &&
-            target_rank == rank + (n * 2) && board[rank][file].get_piece().on_start)) && target_file == file) return false;
+        if(target_file == file && board[target_rank][target_file].has_piece()) return false;
     }
 
     for(array<int, 2> c : moves_list)
