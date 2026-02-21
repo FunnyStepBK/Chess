@@ -1,5 +1,5 @@
-#ifndef squareH
-#define squareH
+#ifndef SQUARE_H
+#define SQUARE_H
 
 #include <iostream>
 #include <string>

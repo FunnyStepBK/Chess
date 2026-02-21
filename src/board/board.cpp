@@ -5,6 +5,7 @@
 #include "board.h"
 #include "./square/square.h"
 #include "./pieces/move-sets/move-set.h"
+#include "./pieces/piece-templates/piece-template.hpp"
 #include "../helper-functions.h"
 
 using namespace std;
@@ -73,78 +74,10 @@ void Board::initialize_board()
 
 
     // Black Pieces
-    Piece b_rook = Piece({
-        "     _   _     ",
-        "    |#|_|#|    ",
-        "    |#####|    ",
-        "    '#####'    ",
-        "    |#####|    ",
-        "   /_.---._\\   ",
-        "   '._____.'   "
-    }, {
-        "#####_###_#####",
-        "####|#|_|#|####",
-        "####|#####|####",
-        "####'#####'####",
-        "####|#####|####",
-        "###/_.---._\\###",
-        "###'._____.'###"
-                         }, 'B', 4);
-
-    Piece b_knight = Piece({
-        "               ",
-        "     |\\.       ",
-        "    /####.     ",
-        "   /_#'###\\    ",
-        "      /###|    ",
-        "     /####|    ",
-        "    `.____.'   "
-    }, {
-        "###############",
-        "#####|\\.#######",
-        "####/####.#####",
-        "###/_#'###\\####",
-        "##### /###|####",
-        "#####/####|####",
-        "####`.____.'###"
-                         }, 'B', 2);
-
-    Piece b_bishop = Piece({
-        "      .-.      ",
-        "     .'#'.     ",
-        "     (###)     ",
-        "     `.#.'     ",
-        "      |#|      ",
-        "    ._'#'_.    ",
-        "    '--^--'    "
-    }, {
-        "######.-.######",
-        "#####.'#'.#####",
-        "#####(###)#####",
-        "#####`.#.'#####",
-        "######|#|######",
-        "####._'#'_.####",
-        "####'--^--'####"
-                         }, 'B', 3);
-
-    Piece b_queen = Piece({
-        "               ",
-        "     o   o     ",
-        " o   /\\ /\\  o  ",
-        " \\`.'##`##`'/  ",
-        "  \\########/   ",
-        "   \\_.--._/    ",
-        "   '.____.'    "
-    },{
-        "###############",
-        "#####o###o#####",
-        "#o###/\\#/\\##o##",
-        "#\\`.'##`##`'/##",
-        "##\\########/###",
-        "###\\_.--._/####",
-        "###'.____.'####"
-                         }, 'B', 5);
-
+    Piece b_rook = B_ROOK_TEMPLATE;
+    Piece b_knight = B_KNIGHT_TEMPLATE;
+    Piece b_bishop = B_BISHOP_TEMPLATE;
+    Piece b_queen = B_QUEEN_TEMPLATE;
     Piece b_king = Piece({
         "       _       ",
         "      ( )      ",
@@ -165,78 +98,10 @@ void Board::initialize_board()
 
 
     // White Pieces
-    Piece w_rook = Piece({
-        "     _   _     ",
-        "    | |_| |    ",
-        "    |     |    ",
-        "    '     '    ",
-        "    |     |    ",
-        "   /_.---._\\   ",
-        "   '._____.'   "
-    }, {
-        "#####_###_#####",
-        "####| |_| |####",
-        "####|     |####",
-        "####'     '####",
-        "####|     |####",
-        "###/_.---._\\###",
-        "###'._____.'###"
-                         }, 'W', 4);
-
-    Piece w_knight = Piece({
-        "               ",
-        "     |\\.       ",
-        "    /   '.     ",
-        "   /_.'-  \\    ",
-        "      /   |    ",
-        "     /____|    ",
-        "    `.____.'   "
-    }, {
-        "###############",
-        "#####|\\.#######",
-        "####/   '.#####",
-        "###/_.'-  \\####",
-        "##### /   |####",
-        "#####/    |####",
-        "####`.____.'###"
-                         }, 'W', 2);
-
-    Piece w_bishop = Piece({
-        "      .-.      ",
-        "     .' '.     ",
-        "     (   )     ",
-        "     `. .'     ",
-        "      | |      ",
-        "    ._' '_.    ",
-        "    '--^--'    "
-    }, {
-        "######.-.######",
-        "#####.' '.#####",
-        "#####(   )#####",
-        "#####`. .'#####",
-        "######| |######",
-        "####._' '_.####",
-        "####'--^--'####"
-                         }, 'W', 3);
-
-    Piece w_queen = Piece({
-        "               ",
-        "     o   o     ",
-        " o   /\\ /\\  o  ",
-        " \\`.'  `  `'/  ",
-        "  \\        /   ",
-        "   \\_.--._/    ",
-        "   '.____.'    "
-    }, {
-        "###############",
-        "#####o###o#####",
-        "#o###/\\#/\\##o##",
-        "#\\`.'  `  `'/##",
-        "##\\        /###",
-        "###\\_.--._/####",
-        "###'.____.'####"
-                          }, 'W', 5);
-
+    Piece w_rook = W_ROOK_TEMPLATE;
+    Piece w_knight = W_KNIGHT_TEMPLATE;
+    Piece w_bishop = W_BISHOP_TEMPLATE;
+    Piece w_queen =  W_QUEEN_TEMPLATE;
     Piece w_king = Piece({
         "       _       ",
         "      ( )      ",
@@ -461,7 +326,7 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
     return false;
 }
 
-bool Board::move_piece(char move[], WINDOW* warn_log_win)
+bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
 {
     float x = getmaxx(warn_log_win);
 
@@ -594,19 +459,47 @@ bool Board::move_piece(char move[], WINDOW* warn_log_win)
         target_square.set_piece(piece, false);
     }
 
-
-    if(target_square.get_piece().type == 0 && target_square.get_piece().on_start == true)
-    {
-        target_square.update_position(false);
-    }
-
     if(piece.color == 'W')
     {
         update_turn('B');
     } else
-    {
+{
         update_turn('W');
     }
+
+    if(target_square.get_piece().type == 0)
+    {
+        if(target_square.get_piece().on_start)
+        {
+            target_square.update_position(false);
+        }
+
+        int promotion_rank = piece.color == 'B' ? 7 : 0;
+        if(target_rank == promotion_rank)
+        {
+            int piece_type = prompt_promotion(input_window, warn_log_win);
+
+            switch(piece_type)
+            {
+                case 2:
+                    target_square.set_piece(piece.color == 'B' ? B_KNIGHT_TEMPLATE : W_KNIGHT_TEMPLATE);
+                    break;
+                case 3:
+                    target_square.set_piece(piece.color == 'B' ? B_BISHOP_TEMPLATE : W_BISHOP_TEMPLATE);
+                    break;
+                case 4:
+                    target_square.set_piece(piece.color == 'B' ? B_ROOK_TEMPLATE : W_ROOK_TEMPLATE);
+                    break;
+                case 5:
+                    target_square.set_piece(piece.color == 'B' ? B_QUEEN_TEMPLATE : B_QUEEN_TEMPLATE);
+                    break;
+            }
+
+        }
+
+    }
+
+    wclear(warn_log_win);
 
     return true;
 }
@@ -682,6 +575,63 @@ int Board::undo_move(WINDOW* warn_log_win)
     }
 
     return 1;
+}
+
+int Board::prompt_promotion(WINDOW* input_window, WINDOW* warn_log_win)
+{
+    mvwprintw(warn_log_win, 1, 1, "> Your pawn reached the promotion rank! What do you want to promote it to?");
+
+    array<string, 4> options = {">> Knight", ">> Bishop", ">> Rook", ">> Queen"};
+    int choice;
+    int highlight = 0;
+
+    int size = options.size();
+
+    wmove(input_window, 2, 3);
+
+    while(true)
+    {
+        for(int i = 0; i < size; i++)
+        {
+            if(i == highlight)
+            {
+                wattron(warn_log_win, A_REVERSE);
+            }
+            mvwprintw(warn_log_win, 3+i, 1, "%s", options[i].c_str());
+            wattroff(warn_log_win, A_REVERSE);
+        }
+        wrefresh(warn_log_win);
+
+        // Move the cursor the input window and clear the user-input then get the key inputs from that window so we won't need to unnecessarily
+        // set keypad true for the warn_log_win and it also makes much more sense getting the input from input window ._.
+        wmove(input_window, 2, 3);
+
+        choice = wgetch(input_window);
+
+        switch(choice)
+        {
+            case KEY_UP:
+            case 107:
+                highlight--;
+                if(highlight == -1) highlight = 0;
+                break;
+            case KEY_DOWN:
+            case 106:
+                highlight++;
+                if(highlight == size) highlight = size - 1;
+                break;
+            default:
+                break;
+        }
+
+        if(choice == 10)
+        {
+            break;
+        }
+
+    }
+
+    return highlight + 2;
 }
 
 bool Board::is_king_safe(Piece piece, int file, int rank, int target_file, int target_rank)

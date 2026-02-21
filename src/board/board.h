@@ -1,5 +1,5 @@
-#ifndef boardH
-#define boardH
+#ifndef BOARD_H
+#define BOARD_H
 
 #include <ncurses.h>
 #include <string>
@@ -90,8 +90,11 @@ public:
 
     // Funcitons related to the whole piece movement functionality
     bool valid_move(Piece p, int file, int rank, int target_file, int target_rank);
-    bool move_piece(char move[], WINDOW* warn_log_win);
+    bool move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win);
     int undo_move(WINDOW* warn_log_win);
+
+    // A function that will prompt a player and get thier res when a pawn reaches it's promotion rank
+    int prompt_promotion(WINDOW* input_window, WINDOW* warn_log_win);
 
     // Fucntion related to mechaincs/game-rules surrounding the King
     bool is_king_safe(Piece piece, int file, int rank, int target_file, int target_rank);

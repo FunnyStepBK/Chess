@@ -1,5 +1,5 @@
-#ifndef pieceH
-#define pieceH
+#ifndef PIECE_H
+#define PIECE_H
 
 #include <vector>
 #include <string>

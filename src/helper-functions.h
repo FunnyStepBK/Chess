@@ -1,5 +1,5 @@
-#ifndef helper_functionsH
-#define helper_functionsH
+#ifndef HELPER_FUNCITONS_H
+#define HELPER_FUNCITONS_H
 
 #include "./board/board.h"
 #include <ncurses.h>

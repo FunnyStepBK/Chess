@@ -1,5 +1,5 @@
-#ifndef  windowsH
-#define windowsH
+#ifndef WINDOWS_H
+#define WINDOWS_H
 
 #include <ncurses.h>
 #include <vector>

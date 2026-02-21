@@ -22,6 +22,8 @@ src/board/pieces/pieces.h
 src/board/pieces/pieces.cpp
 src/board/pieces/move-sets/move-set.h
 src/board/pieces/move-sets/move-set.cpp
+src/board/pieces/piece-templates/piece-template.hpp
+src/board/pieces/piece-templates/piece-template.cpp
 )
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain ${CURSES_LIBRARIES})
 
@@ -42,5 +44,7 @@ src/board/pieces/pieces.h
 src/board/pieces/pieces.cpp
 src/board/pieces/move-sets/move-set.h
 src/board/pieces/move-sets/move-set.cpp
+src/board/pieces/piece-templates/piece-template.hpp
+src/board/pieces/piece-templates/piece-template.cpp
 )
 target_link_libraries(out ${CURSES_LIBRARIES})

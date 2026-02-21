@@ -1,5 +1,5 @@
-#ifndef movesetH
-#define movesetH
+#ifndef MOVESET_H
+#define MOVESET_H
 
 #include <array>
 #include <vector>

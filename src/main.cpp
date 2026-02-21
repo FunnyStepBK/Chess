@@ -50,12 +50,11 @@ int main()
         wclear(warns_log_win);
         box(warns_log_win, 0, 0);
 
-        // If the move was valid and player then check - If the opponent player got a check? If yes, then check if it's a checkmate
-        float y, x;
-        getmaxyx(warns_log_win, y, x);
+        float x = getmaxx(warns_log_win);
 
-        if(board.move_piece(res, warns_log_win))
+        if(board.move_piece(res, input_window, warns_log_win))
         {
+            // If the move was valid then check - If the opponent player got a check? If yes, then check if it's a checkmate
             if(board.is_checked(board.get_turn()))
             {
                 if(board.is_checkmate(board.get_turn()))
