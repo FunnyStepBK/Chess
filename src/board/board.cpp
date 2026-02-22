@@ -266,6 +266,7 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
                     // would have been on the last iteration of valid_move
                     if((last_move_target_rank == rank && last_move_target_file == valid_file) && last_move_rank - 2 * n == last_move_target_rank)
                     {
+                        counter++;
                         continue;
                     }
                 }
@@ -341,7 +342,7 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
         }
     }
 
-    if(get_turn() != piece.color || !  valid_move(piece, file, rank, target_file, target_rank))
+    if(get_turn() != piece.color || !valid_move(piece, file, rank, target_file, target_rank))
     {
         wattron(warn_log_win, COLOR_PAIR(1));
         for(int i = 0; i < invalid_warn_ascii.size(); i++)
@@ -364,9 +365,33 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
         }
     }
 
-    if(target_square.has_piece())
+    // if there is not piece on the target square, the piece type is 0 (a pawn) and target_file equals file - it means the move type is 2
+    // AKA en-passant
+    if(piece.type == 0 && target_file != file && !target_square.has_piece())
+    {
+        int n = piece.color == 'B' ? -1 : +1;
+
+        int captured_rank = target_rank + n;
+        Square& taken_piece = board[captured_rank][target_file];
+
+        // Update the moves_buffer with move type 1 if a piece was captured
+        update_moves_buffer(file, rank, target_file, captured_rank, 2);
+
+        // Update the captured_pieces list whenever a piece is captured
+        captured_pieces.push_back(taken_piece.get_piece());
+
+        // Update the score when a piece is captured
+        increment_score(taken_piece.get_piece());
+
+        taken_piece.clear_square();
+
+    // If there is a piece on the target_square
+    } else if(target_square.has_piece())
     {
         Piece temp_target = target_square.get_piece();
+
+        // Update the moves_buffer with move type 1 if a piece was captured
+        update_moves_buffer(file, rank, target_file, target_rank, 1);
 
         // Update the captured_pieces list whenever a piece is captured
         captured_pieces.push_back(temp_target);
@@ -374,43 +399,22 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
         // Update the score when a piece is captured
         increment_score(temp_target);
 
-    }
-
-    if(moves_buffer.size() < 3)
-    {
-        target_square.has_piece() ? moves_buffer.push_back({file, rank, target_file, target_rank, 1}) :
-        moves_buffer.push_back({file, rank, target_file, target_rank, 0});
+    // Default to move type 0 if the cases written above don't pass
     } else
     {
-        moves_buffer.pop_front();
-        target_square.has_piece() ? moves_buffer.push_back({file, rank, target_file, target_rank, 1}) :
-        moves_buffer.push_back({file, rank, target_file, target_rank, 0});
+        update_moves_buffer(file, rank, target_file, target_rank, 0);
     }
 
-    // Remove the pawn that was captured by en-passant
-    if(piece.type == 0 && target_file != file && !target_square.has_piece())
-    {
-        int n = piece.color == 'B' ? -1 : +1;
 
-        int captured_rank = target_rank + n;
+    // Move the selected piece to the now empty square and that only if there was a piece on that square
+    move_to_square(curr_square, target_square, piece);
 
-        moves_buffer.pop_back();
-        moves_buffer.push_back({file, rank, target_file, captured_rank, 2});
-        captured_pieces.push_back(board[captured_rank][target_file].get_piece());
-
-        board[captured_rank][target_file].clear_square();
-        move_to_square(curr_square, target_square, piece);
-
-    } else
-    {
-        move_to_square(curr_square, target_square, piece);
-    }
 
     if(piece.color == 'W')
     {
         update_turn('B');
     } else
-{
+    {
         update_turn('W');
     }
 
@@ -782,6 +786,16 @@ void Board::decrement_score(Piece piece)
         piece.type == 0 ||piece.type == 2 ? (white_score -= 1 + piece.type) :
         (white_score -= piece.type);
     }
+}
+
+void Board::update_moves_buffer(int file, int rank, int target_file, int target_rank, int move_type)
+{
+    if(moves_buffer.size() == 3)
+    {
+        moves_buffer.pop_front();
+    }
+
+    moves_buffer.push_back({file, rank, target_file, target_rank, move_type});
 }
 
 void Board::convert_to_pawn(Piece& piece)

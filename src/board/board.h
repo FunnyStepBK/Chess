@@ -105,7 +105,7 @@ public:
     int undo_move(WINDOW* warn_log_win);
     void undo_capture(Square& current_square, Square& initial_square, Piece capturing_piece);
 
-    // A function that will prompt a player and get thier res when a pawn reaches it's promotion rank
+    // A function that will prompt a player and get thier response when a pawn reaches it's promotion rank
     int prompt_promotion(WINDOW* input_window, WINDOW* warn_log_win);
 
     // Fucntion related to mechaincs/game-rules surrounding the King
@@ -118,6 +118,9 @@ public:
 
     // Decrements the score of the provided piece's side
     void decrement_score(Piece piece);
+
+    // Adds the latest move to the moves buffer and removes the oldest
+    void update_moves_buffer(int file, int rank, int target_file, int target_rank, int move_type);
 
 
     // Static functions
