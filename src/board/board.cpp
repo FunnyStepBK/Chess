@@ -486,6 +486,7 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
     }
 
     wclear(warn_log_win);
+    box(warn_log_win, 0, 0);
 
     return true;
 }

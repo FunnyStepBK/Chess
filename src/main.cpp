@@ -73,7 +73,13 @@ int main()
 
                     while(handle_input(res, board, true, running, input_window, warns_log_win)) {
                         mvwprintw(warns_log_win, 1, 1, "> Please choose a valid option.");
+                        wrefresh(warns_log_win);
                     }
+
+                    board.print_board(main_window);
+                    board.print_score(main_window);
+
+                    refresh_win(windows_collection);
 
                 } else
                 {
