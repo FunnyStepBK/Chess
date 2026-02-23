@@ -550,9 +550,19 @@ int Board::undo_move(WINDOW* warn_log_win)
             break;
         }
 
-        // Still need to do castling
+        // If move_type is 5, Assign squares respecitve to the current_file to temp_king and temp_rook, then move back the moved
+        // pieces to their initial squares and then clear temp_king & temp_rook squares
         case 5: {
+            Square& temp_king = current_file == 0 ? board[current_rank][current_file + 2] : board[current_rank][current_file - 1];
+            Square& temp_rook = current_file == 0 ? board[current_rank][file - 1] : board[current_rank][file + 1];
 
+            initial_square.set_piece(temp_king.get_piece(), false);
+            current_square.set_piece(temp_rook.get_piece(), false);
+
+            temp_king.clear_square();
+            temp_rook.clear_square();
+
+            break;
         }
 
     }
@@ -848,6 +858,7 @@ bool Board::validate_and_castle(int file, int rank, int target_file, int target_
 
     }
 
+    update_moves_buffer(file, rank, target_file, target_rank, 5);
     return true;
 }
 
