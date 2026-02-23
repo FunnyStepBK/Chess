@@ -56,7 +56,7 @@ Piece W_ROOK_TEMPLATE = Piece({
         "####|     |####",
         "###/_.---._\\###",
         "###'._____.'###"
-                         }, 'W', 4);
+                         }, 'W', 4, true);
 
 Piece W_KNIGHT_TEMPLATE = Piece({
         "               ",
@@ -129,7 +129,7 @@ Piece B_ROOK_TEMPLATE = Piece({
         "####|#####|####",
         "###/_.---._\\###",
         "###'._____.'###"
-                         }, 'B', 4);
+                         }, 'B', 4, true);
 
 Piece B_KNIGHT_TEMPLATE = Piece({
         "               ",

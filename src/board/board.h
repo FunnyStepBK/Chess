@@ -99,6 +99,7 @@ public:
 
     // Funcitons related to the whole piece movement functionality
     bool valid_move(Piece p, int file, int rank, int target_file, int target_rank);
+    bool valid_move(Piece p, int file, int rank, int target_file, int target_rank, bool& is_castle);
     bool move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win);
 
     // Funcitons related to undo-redo stuff
@@ -112,6 +113,10 @@ public:
     bool is_king_safe(Piece piece, int file, int rank, int target_file, int target_rank);
     bool is_checked(char color);
     bool is_checkmate(char color);
+
+    // Functions related to castling
+    bool validate_and_castle(int file, int rank, int target_file, int target_rank, WINDOW* warn_log_win);
+    bool castle_if_safe(int king_file, int rook_file, int back_rank, Square& king_square, Square& rook_square);
 
     // Increments the score of the provided piece's side
     void increment_score(Piece piece);

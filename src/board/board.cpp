@@ -59,7 +59,7 @@ void Board::initialize_board()
         "##`.#######.'##",
         "###)_.---._(###",
         "###`._____.'###"
-                         }, 'B', 1);
+                         }, 'B', 1, true);
 
 
     // White Pieces
@@ -83,7 +83,7 @@ void Board::initialize_board()
         "##`.       .'##",
         "###)_.---._(###",
         "###`._____.'###"
-                         }, 'W', 1);
+                         }, 'W', 1, true);
 
 
     // Setting up all the pieces by directly indexing - Don't think this is a good practice but can't really come up with another solution for this
@@ -292,9 +292,34 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
     return false;
 }
 
+bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_rank, bool& is_castle)
+{
+    Square target_square = board[target_rank][target_file];
+
+    if(p.type == 1 && (target_square.has_piece() && target_square.get_piece().type == 4) && p.color == target_square.get_piece().color)
+    {
+        if(p.on_start && target_square.get_piece().on_start)
+        {
+            is_castle = true;
+            return true;
+        }
+    }
+
+    if(!valid_move(p, file, rank, target_file, target_rank))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
 {
     float x = getmaxx(warn_log_win);
+
+    // We are gonna use this variable as a flag to check if the move type is castiling by passing it as a param in valid_move and after calling valid_move
+    // we will check if this flag is triggered if it is then we will perform castling and return
+    bool is_castle = false;
 
     int file = static_cast<int>(move[0]) - 97;
     int rank = 56 - static_cast<int>(move[1]);
@@ -342,7 +367,7 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
         }
     }
 
-    if(get_turn() != piece.color || !valid_move(piece, file, rank, target_file, target_rank))
+    if(get_turn() != piece.color || !valid_move(piece, file, rank, target_file, target_rank, is_castle))
     {
         wattron(warn_log_win, COLOR_PAIR(1));
         for(int i = 0; i < invalid_warn_ascii.size(); i++)
@@ -352,6 +377,12 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
         wattroff(warn_log_win, COLOR_PAIR(1));
 
         return false;
+    }
+
+    // Check if the move type is castling
+    if(is_castle)
+    {
+        return validate_and_castle(file, rank, target_file, target_rank, warn_log_win) ? true : false;
     }
 
     if(piece.type == 1)
@@ -418,15 +449,17 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
         update_turn('W');
     }
 
-    if(target_square.get_piece().type == 0)
+    Piece moved_piece = target_square.get_piece();
+
+    if(moved_piece.type == 0 || moved_piece.type == 1 || moved_piece.type == 4)
     {
-        if(target_square.get_piece().on_start)
+        if(moved_piece.on_start)
         {
             target_square.update_position(false);
         }
 
         int promotion_rank = piece.color == 'B' ? 7 : 0;
-        if(target_rank == promotion_rank)
+        if(target_rank == promotion_rank && moved_piece.type == 0)
         {
             int piece_type = prompt_promotion(input_window, warn_log_win);
 
@@ -525,7 +558,12 @@ int Board::undo_move(WINDOW* warn_log_win)
     }
 
     int row = moved_piece.color == 'B' ? 1 : 6;
-    if(moved_piece.type == 0 && rank == row)
+    if(moved_piece.type != 0) row = moved_piece.color == 'B' ? 0 : 7;
+
+    if(((moved_piece.type == 0) ||
+        (moved_piece.type == 1 && file == 4) ||
+        (moved_piece.type == 4 && (file == 0 || file == 7))) &&
+        rank == row)
     {
         board[rank][file].update_position(true);
     }
@@ -749,6 +787,86 @@ bool Board::is_checkmate(char color)
             }
         }
     }
+
+    return true;
+}
+
+bool Board::validate_and_castle(int file, int rank, int target_file, int target_rank, WINDOW* warn_log_win)
+{
+    Square& king_square = board[rank][file];
+    Square& rook_square = board[target_rank][target_file];
+
+    // Return if the king is under check
+    if(is_checked(king_square.get_piece().color))
+    {
+        mvwprintw(warn_log_win, 1, 1, "> Your king is under check! Can't castle in current position.");
+        return false;
+    }
+
+    int check_rank = 0;
+    int check_file = 0;
+
+
+    // If target_file is 0 then we make n equal to -1 because we need to travel back from the current index (that is of the king - 4) and make it +1
+    // if target_file dosen't equal to 0 - here we don't need to check if the target_file is not 0 then it should be 7 becaues we already do that
+    // in valid_move
+    int n = target_file == 0 ? -1 : 1;
+
+    vector<array<int, 2>> squares_list;
+    MoveSet::travel_straight(board, rank, file + n, 0, n, n == 1 ? 2 : 3, squares_list, king_square.get_color(), false);
+
+    int size = squares_list.size();
+
+    // If the size of squares_list is not equal to the number respective to the value of n, then we return as that's the number of pieces/squares
+    // present between the king and that rook (respective to the value of n ofc) so it would mean that there is/are some pieces present between
+    // the king and the rook
+    if(n == 1 ? size != 2 : size != 3)
+    {
+        mvwprintw(warn_log_win, 1, 1, "> Unable to castle! There is/are some pieces present between the king and the rook.");
+        return false;
+    }
+
+    check_rank = squares_list[size - 1][0];
+    check_file = squares_list[size - 1][1];
+
+    // Now we just move the king and the rook to the squares in accordance with the value of n
+    if(n == 1)
+    {
+        if(!castle_if_safe(check_file, squares_list[0][1], check_rank, king_square, rook_square))
+        {
+            mvwprintw(warn_log_win, 1, 1, "> Unable to castle! The king will be under attack.");
+            return false;
+        }
+
+    } else
+    {
+        if(!castle_if_safe(squares_list[1][1], squares_list[0][1], check_rank, king_square, rook_square))
+        {
+            mvwprintw(warn_log_win, 1, 1, "> Unable to castle! The king will be under attack.");
+            return false;
+        }
+
+    }
+
+    return true;
+}
+
+bool Board::castle_if_safe(int king_file, int rook_file, int back_rank, Square& king_square, Square& rook_square)
+{
+    board[back_rank][king_file].set_piece(king_square.get_piece(), false);
+    board[back_rank][rook_file].set_piece(rook_square.get_piece(), false);
+
+    // Checks if the king is under check and if yes then return false
+    if(is_checked(king_square.get_color()))
+    {
+        board[back_rank][king_file].clear_square();
+        board[back_rank][rook_file].clear_square();
+
+        return false;
+    }
+
+    king_square.clear_square();
+    rook_square.clear_square();
 
     return true;
 }
