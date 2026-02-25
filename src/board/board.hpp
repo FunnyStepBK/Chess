@@ -23,6 +23,7 @@ private:
     char turn;
 
     // Format for the moves_buffer : {int file, int rank, int target_file, int target_rank, int move_type}
+    // ALl the currently defined move types
     // 0 - regular move
     // 1 - A piece captured another piece
     // 2 - en-passant move
@@ -31,6 +32,7 @@ private:
     // 5 - castling
     deque<array<int, 5>> moves_buffer;
 
+    // A vector to store all the pieces that get captured
     vector<Piece> captured_pieces;
 
     // A vector to store all the moves and display them in the moves_log_win
@@ -118,10 +120,13 @@ public:
     // mutators
     void update_wk_position(array<int, 2> _position) { WKing_square = _position; }
     void update_bk_position(array<int, 2> _position) { BKing_square = _position; }
-    void update_turn(char _turn) { turn = _turn; }
+    void update_turn()
+    {
+        turn = turn == 'W' ? 'B' : 'W';
+    }
 
     // Constructors
-    Board() : board(8, vector<Square>(8, Square(true))), turn('W'), white_score(0), black_score(0)
+    Board() : turn('W'), board(8, vector<Square>(8, Square(true))), white_score(0), black_score(0)
     {
         initialize_board();
 

@@ -413,14 +413,8 @@ int Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
     // Move the selected piece to the now empty square and that only if there was a piece on that square
     move_to_square(curr_square, target_square, piece);
 
-
-    if(piece.color == 'W')
-    {
-        update_turn('B');
-    } else
-    {
-        update_turn('W');
-    }
+    // Update the turn
+    update_turn();
 
     Piece moved_piece = target_square.get_piece();
 
@@ -498,8 +492,7 @@ int Board::undo_move(WINDOW* warn_log_win)
 
         // If move_type is 0, we clear the current square and set piece on initial square
         case 0: {
-            current_square.clear_square();
-            initial_square.set_piece(moved_piece, false);
+            move_to_square(current_square, initial_square, moved_piece);
             break;
         }
 
@@ -552,7 +545,9 @@ int Board::undo_move(WINDOW* warn_log_win)
     }
 
     moves_buffer.pop_back();
-    update_turn(moved_piece.color);
+
+    // Update the turn
+    update_turn();
 
     if(move_type == 1)
     {
@@ -641,8 +636,7 @@ bool Board::is_king_safe(Piece piece, int file, int rank, int target_file, int t
         return false;
     }
 
-    temp_square.clear_square();
-    temp_target.set_piece(piece, false);
+    move_to_square(temp_square, temp_target, temp_square.get_piece());
 
     if(piece.type == 1)
     {
