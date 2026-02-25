@@ -1,7 +1,7 @@
 #ifndef PIECE_TEMPLATE_H
 #define PIECE_TEMPLATE_H
 
-#include "../pieces.h"
+#include "../pieces.hpp"
 
 extern Piece B_PAWN;
 extern Piece W_PAWN;

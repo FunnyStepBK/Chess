@@ -1,8 +1,9 @@
 #include <vector>
 #include <array>
 
-#include "move-set.h"
-#include "../../../helper-functions.h"
+#include "../../board.hpp"
+#include "move-set.hpp"
+#include "../../../helper-functions.hpp"
 
 using namespace std;
 

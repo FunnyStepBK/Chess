@@ -1,11 +1,6 @@
 #ifndef MOVESET_H
 #define MOVESET_H
 
-#include <array>
-#include <vector>
-
-#include "../../board.h"
-
 class MoveSet
 {
 public:

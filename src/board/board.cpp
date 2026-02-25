@@ -2,11 +2,12 @@
 #include <string>
 #include <array>
 
-#include "board.h"
-#include "./square/square.h"
-#include "./pieces/move-sets/move-set.h"
+#include <ncurses.h>
+#include "board.hpp"
+#include "../windows/windows.hpp"
+#include "../helper-functions.hpp"
+#include "./pieces/move-sets/move-set.hpp"
 #include "./pieces/piece-templates/piece-template.hpp"
-#include "../helper-functions.h"
 
 using namespace std;
 
@@ -213,7 +214,7 @@ void Board::print_score(WINDOW* window)
     wattroff(window, A_STANDOUT | COLOR_BLACK | A_BOLD);
 }
 
-bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_rank)
+int Board::valid_move(Piece p, int file, int rank, int target_file, int target_rank)
 {
     vector<array<int, 2>> moves_list;
 
@@ -292,7 +293,7 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
     return false;
 }
 
-bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_rank, bool& is_castle)
+int Board::valid_move(Piece p, int file, int rank, int target_file, int target_rank, bool& is_castle)
 {
     Square target_square = board[target_rank][target_file];
 
@@ -305,20 +306,13 @@ bool Board::valid_move(Piece p, int file, int rank, int target_file, int target_
         }
     }
 
-    if(!valid_move(p, file, rank, target_file, target_rank))
-    {
-        return false;
-    }
-
-    return true;
+    return valid_move(p, file, rank, target_file, target_rank);
 }
 
-bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
+int Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
 {
-    float x = getmaxx(warn_log_win);
-
     // We are gonna use this variable as a flag to check if the move type is castiling by passing it as a param in valid_move and after calling valid_move
-    // we will check if this flag is triggered if it is then we will perform castling and return
+    // we will check if this flag is triggered if it is then we will castle and return
     bool is_castle = false;
 
     int file = static_cast<int>(move[0]) - 97;
@@ -327,10 +321,10 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
     int target_file = static_cast<int>(move[2]) - 97;
     int target_rank = 56 - static_cast<int>(move[3]);
 
+    // Check if the input is valid
     if (out_of_bounds(rank, file) || out_of_bounds(target_rank, target_file))
     {
-        mvwprintw(warn_log_win, 1, 1, "> Invalid notation! Please use standard notations to move the pieces.");
-        return false;
+        return INVALID_INPUT;
     }
 
     Square& curr_square = board[rank][file];
@@ -338,51 +332,30 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
 
     Piece piece;
 
+    // Check if the chosen square is empty - If yes, then return
     if(!curr_square.has_piece())
     {
-        wattron(warn_log_win, COLOR_PAIR(1));
-        for(int i = 0; i < invalid_warn_ascii.size(); i++)
-        {
-            mvwprintw(warn_log_win, 3 + i, (x/100) * 23, "%s", invalid_warn_ascii[i].c_str());
-        }
-        wattroff(warn_log_win, COLOR_PAIR(1));
-
-        return false;
+        return EMPTY_SQUARE;
     }
 
     piece = curr_square.get_piece();
 
-    if(get_turn() == piece.color && is_checked(get_turn()))
-    {
-        if(!is_king_safe(piece, file, rank, target_file, target_rank))
-        {
-            wattron(warn_log_win, COLOR_PAIR(1));
-            for(int i = 0; i < illegal_warn_ascii.size(); i++)
-            {
-                mvwprintw(warn_log_win, 3 + i, 2, "%s", illegal_warn_ascii[i].c_str());
-            }
-            wattroff(warn_log_win, COLOR_PAIR(1));
-
-            return false;
-        }
-    }
-
+    // Check if a valid move
     if(get_turn() != piece.color || !valid_move(piece, file, rank, target_file, target_rank, is_castle))
     {
-        wattron(warn_log_win, COLOR_PAIR(1));
-        for(int i = 0; i < invalid_warn_ascii.size(); i++)
-        {
-            mvwprintw(warn_log_win, 3 + i, (x/100) * 23, "%s", invalid_warn_ascii[i].c_str());
-        }
-        wattroff(warn_log_win, COLOR_PAIR(1));
+        return INVALID_MOVE;
+    }
 
-        return false;
+    // check if not an illegal move
+    if(!is_king_safe(piece, file, rank, target_file, target_rank))
+    {
+        return ILLEGAL_MOVE;
     }
 
     // Check if the move type is castling
     if(is_castle)
     {
-        return validate_and_castle(file, rank, target_file, target_rank, warn_log_win) ? true : false;
+        return validate_and_castle(file, rank, target_file, target_rank, warn_log_win) ? VALID_MOVE : INVALID_MOVE;
     }
 
     if(piece.type == 1)
@@ -485,10 +458,9 @@ bool Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
 
     }
 
-    wclear(warn_log_win);
-    box(warn_log_win, 0, 0);
+    clear_and_box_win(warn_log_win);
 
-    return true;
+    return VALID_MOVE;
 }
 
 int Board::undo_move(WINDOW* warn_log_win)

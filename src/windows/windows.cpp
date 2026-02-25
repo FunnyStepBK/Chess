@@ -1,3 +1,5 @@
+#include <ncurses.h>
+#include <vector>
 #include "windows.hpp"
 
 using namespace std;
@@ -9,8 +11,7 @@ WINDOW* create_win(float height, float width, float starty, float startx)
 
     temp_win = newwin(height, width, starty, startx);
 
-    box(temp_win, 0, 0);
-    wrefresh(temp_win);
+    clear_and_box_win(temp_win);
 
     return temp_win;
 }
@@ -57,11 +58,13 @@ vector<WINDOW*> initialize_windows()
     return {main_window, log_window, input_window, moves_log_win, eval_log_win, warns_log_win};
 }
 
-// A function to refresh all the windows in a collection (vector)
-void refresh_win(vector<WINDOW*> collection)
+void clear_and_box_win(WINDOW* window)
 {
-    for(WINDOW* w : collection)
-    {
-        wrefresh(w);
-    }
+    wclear(window);
+
+    wattron(window, COLOR_PAIR(4));
+    box(window, 0, 0);
+    wattroff(window, COLOR_PAIR(4));
+
+    wrefresh(window);
 }

@@ -1,7 +1,8 @@
 #include <ncurses.h>
+#include <panel.h>
 
-#include "board/board.h"
-#include "./helper-functions.h"
+#include "board/board.hpp"
+#include "./helper-functions.hpp"
 #include "./windows/windows.hpp"
 
 using namespace std;
@@ -19,8 +20,14 @@ int main()
     init_pair(1, COLOR_RED, -1);
     init_pair(2, COLOR_BLUE, -1);
     init_pair(3, COLOR_YELLOW, -1);
+    init_pair(4, COLOR_BLACK, -1);
 
+    // A collection to store all the windows in one place - useful for refreshing and deleting them all collectively
     vector<WINDOW*> windows_collection = initialize_windows();
+
+    // Two collection of panels - One for the left side aka the main_win and the other one of the right side, i.e. the log_win panels
+    PANEL* main_panels[2];
+    PANEL* log_panels[4];
 
     WINDOW* main_window = windows_collection[0];
     WINDOW* log_window = windows_collection[1];
@@ -29,7 +36,20 @@ int main()
 
     WINDOW* moves_log_win = windows_collection[3];
     WINDOW* eval_log_win = windows_collection[4];
-    WINDOW* warns_log_win = windows_collection[5];
+    WINDOW* warn_log_win = windows_collection[5];
+
+    // A var to store the window in which the cursor is currently present
+    WINDOW* active_window = main_window;
+
+    main_panels[0] = new_panel(main_window);
+    main_panels[1] = new_panel(input_window);
+
+    log_panels[0] = new_panel(log_window);
+    log_panels[1] = new_panel(moves_log_win);
+    log_panels[2] = new_panel(eval_log_win);
+    log_panels[3] = new_panel(warn_log_win);
+
+    top_panel(main_panels[1]);
 
     setlocale(LC_ALL, "");
 
@@ -41,55 +61,43 @@ int main()
         board.print_board(main_window);
         board.print_score(main_window);
 
-        // Refresh all the windows in the collection
-        refresh_win(windows_collection);
+        box(active_window, 0, 0);
+
+        update_panels();
+        doupdate();
 
         char res[6];
-        if(!handle_input(res, board, false, running, input_window, warns_log_win)) continue;
+        if(!handle_input(res, board, false, running, input_window, warn_log_win)) continue;
 
-        wclear(warns_log_win);
-        box(warns_log_win, 0, 0);
+        clear_and_box_win(warn_log_win);
 
-        float x = getmaxx(warns_log_win);
+        float x = getmaxx(warn_log_win);
 
-        if(board.move_piece(res, input_window, warns_log_win))
+        if(handle_output(board.move_piece(res, input_window, warn_log_win), warn_log_win))
         {
             // If the move was valid then check - If the opponent player got a check? If yes, then check if it's a checkmate
             if(board.is_checked(board.get_turn()))
             {
                 if(board.is_checkmate(board.get_turn()))
                 {
-                    wattron(warns_log_win, COLOR_PAIR(2));
-                    for(int i = 0; i < board.mate_warn_ascii.size(); i++)
-                    {
-                        mvwprintw(warns_log_win, 3 + i, 2, "%s", board.mate_warn_ascii[i].c_str());
-                    }
-                    wattroff(warns_log_win, COLOR_PAIR(2));
+                    print_ascii(warn_log_win, 3, 2, mate_warn_ascii, 2);
 
                     mvwprintw(input_window, 1, 0, "Type 'quit'/'Quit' to quit, or type 'reset'/'Reset' to reset the board and play another game!");
-
-                    wrefresh(warns_log_win);
-                    wrefresh(input_window);
-
-                    while(handle_input(res, board, true, running, input_window, warns_log_win)) {
-                        mvwprintw(warns_log_win, 1, 1, "> Please choose a valid option.");
-                        wrefresh(warns_log_win);
-                    }
 
                     board.print_board(main_window);
                     board.print_score(main_window);
 
-                    refresh_win(windows_collection);
+                    update_panels();
+                    doupdate();
+
+                    while(handle_input(res, board, true, running, input_window, warn_log_win)) {
+                        mvwprintw(warn_log_win, 1, 1, "> Please choose a valid option.");
+                        wrefresh(warn_log_win);
+                    }
 
                 } else
                 {
-                    wattron(warns_log_win, COLOR_PAIR(3));
-                    for(int i = 0; i < board.check_warn_ascii.size(); i++)
-                    {
-                        mvwprintw(warns_log_win, 3 + i, (x/100) * 21, "%s", board.check_warn_ascii[i].c_str());
-                    }
-                    wattroff(warns_log_win, COLOR_PAIR(3));
-
+                    print_ascii(warn_log_win, 3, (x/100) * 21, check_warn_ascii, 3);
                 }
 
             }

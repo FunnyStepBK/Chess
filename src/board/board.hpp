@@ -1,18 +1,23 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include <ncurses.h>
+#define VALID_MOVE -1
+#define INVALID_INPUT 0
+#define INVALID_MOVE 1
+#define EMPTY_SQUARE 2
+#define ILLEGAL_MOVE 3
+
 #include <string>
 #include <vector>
 #include <array>
 #include <deque>
+#include <ncurses.h>
 
-#include "./square/square.h"
+#include "./square/square.hpp"
 
 class Board
 {
 private:
-    vector<vector<Square>> board;
     array<int, 2> WKing_square;
     array<int, 2> BKing_square;
     char turn;
@@ -28,7 +33,11 @@ private:
 
     vector<Piece> captured_pieces;
 
+    // A vector to store all the moves and display them in the moves_log_win
+    vector<array<int, 2>> moves;
+
 public:
+    vector<vector<Square>> board;
     // Ints to store the sum of all the pieces captured by a side (black/white)
     int white_score;
     int black_score;
@@ -53,44 +62,6 @@ public:
         "               "
     };
 
-    vector<string> check_warn_ascii = {
-        " a88888b. dP                         dP       dP",
-        "d8'   `88 88                         88       88",
-        "88        88d888b. .d8888b. .d8888b. 88  .dP  88",
-        "88        88'  `88 88ooood8 88'  `'' 88888'   dP",
-        "Y8.   .88 88    88 88.  ... 88.  ... 88  `8b.   ",
-        " Y88888P' dP    dP `88888P' `88888P' dP   `YP oo"
-    };
-
-    vector<string> mate_warn_ascii = {
-        " a88888b. dP                         dP                             dP           ",
-        "d8'   `88 88                         88                             88           ",
-        "88        88d888b. .d8888b. .d8888b. 88  .dP  88d8b.d8b. .d8888b. d8888P .d8888b.",
-        "88        88'  `88 88ooood8 88'  `'' 88888'   88'`88'`88 88'  `88   88   88ooood8",
-        "Y8.   .88 88    88 88.  ... 88.  ... 88  `8b. 88  88  88 88.  .88   88   88.  ...",
-        " Y88888P' dP    dP `88888P' `88888P' dP   `YP dP  dP  dP `88888P8   dP   `88888P'"
-    };
-
-    vector<string> illegal_warn_ascii = {
-        "oo dP dP                            dP                                         dP",
-        "   88 88                            88                                         88",
-        "dP 88 88 .d8888b. .d8888b. .d8888b. 88   88d8b.d8b. .d8888b. dP   .dP .d8888b. 88",
-        "88 88 88 88ooood8 88'  `88 88'  `88 88   88'`88'`88 88'  `88 88   d8' 88ooood8 dP",
-        "88 88 88 88.  ... 88.  .88 88.  .88 88   88  88  88 88.  .88 88 .88'  88.  ...   ",
-        "dP dP dP `88888P' `8888P88 `88888P8 dP   dP  dP  dP `88888P' 8888P'   `88888P' oo",
-        "                       .88                                                       ",
-        "                   d8888P                                                        "
-    };
-
-    vector<string> invalid_warn_ascii = {
-        "dP                            dP oo       dP  dP ",
-        "88                            88          88  88 ",
-        "88 88d888b. dP   .dP .d8888b. 88 dP .d888b88  88 ",
-        "88 88'  `88 88   d8' 88'  `88 88 88 88'  `88  dP ",
-        "88 88    88 88 .88'  88.  .88 88 88 88.  .88     ",
-        "dP dP    dP 8888P'   `88888P8 dP dP `88888P8  oo "
-    };
-
     void initialize_board(); // Adds all the pieces to their appropriate starting squares can also be used to reset the position of
     // all pieces back to their starting square
 
@@ -98,9 +69,9 @@ public:
     void print_score(WINDOW* window);
 
     // Funcitons related to the whole piece movement functionality
-    bool valid_move(Piece p, int file, int rank, int target_file, int target_rank);
-    bool valid_move(Piece p, int file, int rank, int target_file, int target_rank, bool& is_castle);
-    bool move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win);
+    int valid_move(Piece p, int file, int rank, int target_file, int target_rank);
+    int valid_move(Piece p, int file, int rank, int target_file, int target_rank, bool& is_castle);
+    int move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win);
 
     // Funcitons related to undo-redo stuff
     int undo_move(WINDOW* warn_log_win);

@@ -1,12 +1,7 @@
 #ifndef SQUARE_H
 #define SQUARE_H
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <optional>
-
-#include "../pieces/pieces.h"
+#include "../pieces/pieces.hpp"
 
 using namespace std;
 
