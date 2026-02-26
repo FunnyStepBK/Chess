@@ -15,11 +15,16 @@
 
 #include "./square/square.hpp"
 
+struct Position {
+    int row;
+    int col;
+};
+
 class Board
 {
 private:
-    array<int, 2> WKing_square;
-    array<int, 2> BKing_square;
+    Position WKing_square;
+    Position BKing_square;
     char turn;
 
     // Format for the moves_buffer : {int file, int rank, int target_file, int target_rank, int move_type}
@@ -35,14 +40,14 @@ private:
     // A vector to store all the pieces that get captured
     vector<Piece> captured_pieces;
 
-    // A vector to store all the moves and display them in the moves_log_win
-    vector<array<int, 2>> moves;
-
 public:
     vector<vector<Square>> board;
     // Ints to store the sum of all the pieces captured by a side (black/white)
     int white_score;
     int black_score;
+
+    // A vector to store all the moves and display them in the moves_log_win
+    vector<string> moves;
 
     vector<string> black_sqaure_ascii = {
         "###############",
@@ -113,28 +118,29 @@ public:
 
 
     // accessors
-    array<int, 2> get_wk_position() { return WKing_square; }
-    array<int, 2> get_bk_position() { return BKing_square; }
+    Position get_wk_position() { return WKing_square; }
+    Position get_bk_position() { return BKing_square; }
     char get_turn() { return turn; }
 
     // mutators
-    void update_wk_position(array<int, 2> _position) { WKing_square = _position; }
-    void update_bk_position(array<int, 2> _position) { BKing_square = _position; }
+    void update_wk_position(Position new_position) { WKing_square = new_position; }
+    void update_bk_position(Position new_position) { BKing_square = new_position; }
     void update_turn()
     {
         turn = turn == 'W' ? 'B' : 'W';
     }
+
 
     // Constructors
     Board() : turn('W'), board(8, vector<Square>(8, Square(true))), white_score(0), black_score(0)
     {
         initialize_board();
 
-        WKing_square[0] = 7;
-        WKing_square[1] = 4;
+        WKing_square.row = 7;
+        WKing_square.col = 4;
 
-        BKing_square[0] = 0;
-        BKing_square[1] = 4;
+        BKing_square.row = 0;
+        BKing_square.col = 4;
     }
 
 };

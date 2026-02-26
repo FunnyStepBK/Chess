@@ -69,8 +69,6 @@ int main()
         char res[6];
         if(!handle_input(res, board, false, running, input_window, warn_log_win)) continue;
 
-        clear_and_box_win(warn_log_win);
-
         float x = getmaxx(warn_log_win);
 
         if(handle_output(board.move_piece(res, input_window, warn_log_win), warn_log_win))
@@ -90,10 +88,7 @@ int main()
                     update_panels();
                     doupdate();
 
-                    while(handle_input(res, board, true, running, input_window, warn_log_win)) {
-                        mvwprintw(warn_log_win, 1, 1, "> Please choose a valid option.");
-                        wrefresh(warn_log_win);
-                    }
+                    while(handle_input(res, board, true, running, input_window, warn_log_win)) { }
 
                 } else
                 {

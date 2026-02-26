@@ -216,7 +216,7 @@ void Board::print_score(WINDOW* window)
 
 int Board::valid_move(Piece p, int file, int rank, int target_file, int target_rank)
 {
-    vector<array<int, 2>> moves_list;
+    vector<Position> moves_list;
 
     get_moves(p, file, rank, moves_list, board);
 
@@ -247,10 +247,10 @@ int Board::valid_move(Piece p, int file, int rank, int target_file, int target_r
 
         Square valid_square;
 
-        for(array<int, 2> a : moves_list)
+        for(Position pos : moves_list)
         {
-            valid_rank = a[0];
-            valid_file = a[1];
+            valid_rank = pos.row;
+            valid_file = pos.col;
 
             valid_square = board[valid_rank][valid_file];
 
@@ -282,9 +282,9 @@ int Board::valid_move(Piece p, int file, int rank, int target_file, int target_r
         if(target_file == file && board[target_rank][target_file].has_piece()) return false;
     }
 
-    for(array<int, 2> c : moves_list)
+    for(Position pos : moves_list)
     {
-        if(c[0] == target_rank && c[1] == target_file)
+        if(pos.row == target_rank && pos.col == target_file)
         {
             return true;
         }
@@ -659,53 +659,51 @@ bool Board::is_king_safe(Piece piece, int file, int rank, int target_file, int t
 
 bool Board::is_checked(char color)
 {
-    int rank = get_bk_position()[0];
-    int file = get_bk_position()[1];
+    Position pos{get_bk_position()};
 
     if(color == 'W')
     {
-        rank = get_wk_position()[0];
-        file = get_wk_position()[1];
+        pos = {get_wk_position()};
     }
 
-    vector<array<int, 2>> in_sight;
-    vector<array<int, 2>> in_L_sight;
+    vector<Position> in_sight;
+    vector<Position> in_L_sight;
 
-    MoveSet::intercardinal_traversal(board, rank, file, 8, in_sight, color, false);
-    MoveSet::cardinal_traversal(board, rank, file, 8, in_sight, color, false);
-    MoveSet::knight_move_set(board, rank, file, in_L_sight, color);
+    MoveSet::intercardinal_traversal(board, pos.row, pos.col, 8, in_sight, color, false);
+    MoveSet::cardinal_traversal(board, pos.row, pos.col, 8, in_sight, color, false);
+    MoveSet::knight_move_set(board, pos.row, pos.col, in_L_sight, color);
 
     int target_rank;
     int target_file;
     Square square;
 
-    for(array<int, 2> a : in_sight)
+    for(Position p : in_sight)
     {
-        target_rank = a[0];
-        target_file = a[1];
+        target_rank = p.row;
+        target_file = p.col;
         square = board[target_rank][target_file];
 
         if(!square.has_piece())
         {
             continue;
         }
-        if(valid_move(square.get_piece(), target_file, target_rank, file, rank))
+        if(valid_move(square.get_piece(), target_file, target_rank, pos.col, pos.row))
         {
             return true;
         }
     }
 
-    for(array<int, 2> a : in_L_sight)
+    for(Position p : in_L_sight)
     {
-        target_rank = a[0];
-        target_file = a[1];
+        target_rank = p.row;
+        target_file = p.col;
         square = board[target_rank][target_file];
 
         if(!square.has_piece())
         {
             continue;
         }
-        if(valid_move(square.get_piece(), target_file, target_rank, file, rank))
+        if(valid_move(square.get_piece(), target_file, target_rank, pos.col, pos.row))
         {
             return true;
         }
@@ -716,7 +714,7 @@ bool Board::is_checked(char color)
 
 bool Board::is_checkmate(char color)
 {
-    vector<array<int, 2>> squares;
+    vector<Position> squares;
 
     for(int i = 0; i < 8; i++)
     {
@@ -737,26 +735,26 @@ bool Board::is_checkmate(char color)
     int rank;
     int file;
 
-    vector<array<int, 2>> moves_list;
+    vector<Position> moves_list;
 
-    for(array<int, 2> square : squares)
+    for(Position square : squares)
     {
         int target_rank;
         int target_file;
 
-        moves_list = vector<array<int, 2>>();
+        moves_list.clear();
 
-        rank = square[0];
-        file = square[1];
+        rank = square.row;
+        file = square.col;
 
         Piece p = board[rank][file].get_piece();
 
         get_moves(p, file, rank, moves_list, board);
 
-        for(array<int, 2> move : moves_list)
+        for(Position move : moves_list)
         {
-            target_rank = move[0];
-            target_file = move[1];
+            target_rank = move.row;
+            target_file = move.col;
 
             if(is_king_safe(p, file, rank, target_file, target_rank))
             {
@@ -789,7 +787,7 @@ bool Board::validate_and_castle(int file, int rank, int target_file, int target_
     // in valid_move
     int n = target_file == 0 ? -1 : 1;
 
-    vector<array<int, 2>> squares_list;
+    vector<Position> squares_list;
     MoveSet::travel_straight(board, rank, file + n, 0, n, n == 1 ? 2 : 3, squares_list, king_square.get_color(), false);
 
     int size = squares_list.size();
@@ -803,13 +801,13 @@ bool Board::validate_and_castle(int file, int rank, int target_file, int target_
         return false;
     }
 
-    check_rank = squares_list[size - 1][0];
-    check_file = squares_list[size - 1][1];
+    check_rank = squares_list[size - 1].row;
+    check_file = squares_list[size - 1].col;
 
     // Now we just move the king and the rook to the squares in accordance with the value of n
     if(n == 1)
     {
-        if(!castle_if_safe(check_file, squares_list[0][1], check_rank, king_square, rook_square))
+        if(!castle_if_safe(check_file, squares_list[0].col, check_rank, king_square, rook_square))
         {
             mvwprintw(warn_log_win, 1, 1, "> Unable to castle! The king will be under attack.");
             return false;
@@ -817,7 +815,7 @@ bool Board::validate_and_castle(int file, int rank, int target_file, int target_
 
     } else
     {
-        if(!castle_if_safe(squares_list[1][1], squares_list[0][1], check_rank, king_square, rook_square))
+        if(!castle_if_safe(squares_list[1].col, squares_list[0].col, check_rank, king_square, rook_square))
         {
             mvwprintw(warn_log_win, 1, 1, "> Unable to castle! The king will be under attack.");
             return false;

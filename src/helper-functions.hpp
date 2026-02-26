@@ -13,7 +13,7 @@ bool handle_input(char res[], Board& board, bool game_over, bool& running, WINDO
 bool out_of_bounds(int row, int col);
 
 // Returns a list of valid moves for a given piece
-void get_moves(Piece p, int file, int rank, vector<array<int, 2>>& moves_list, vector<vector<Square>> board);
+void get_moves(Piece p, int file, int rank, vector<Position>& moves_list, vector<vector<Square>> board);
 
 // A function to handle the output of different functions and print errors or log statements (if any) to the user accordingly, So if the case is:
 // 0 : Invalid input

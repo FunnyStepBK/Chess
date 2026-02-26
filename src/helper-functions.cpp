@@ -1,6 +1,5 @@
 #include <ncurses.h>
 #include <panel.h>
-#include <array>
 #include <vector>
 #include <cstring>
 
@@ -100,6 +99,8 @@ bool handle_input(char res[], Board& board, bool game_over, bool& running, WINDO
 
     if(game_over)
     {
+        mvwprintw(warn_log_win, 1, 1, "> Please choose a valid option.");
+        wrefresh(warn_log_win);
         return true;
     }
 
@@ -112,6 +113,7 @@ bool handle_input(char res[], Board& board, bool game_over, bool& running, WINDO
     if(temp.size() != 4 && !game_over)
     {
         mvwprintw(warn_log_win, 1, 1, "> Invalid notation! Please use standard notations to move the pieces.");
+        return false;
     }
 
     return true;
@@ -129,7 +131,7 @@ bool out_of_bounds(int row, int col)
 }
 
 // Returns a list of valid moves for any given piece
-void get_moves(Piece p, int file, int rank, vector<array<int, 2>>& moves_list, vector<vector<Square>> board)
+void get_moves(Piece p, int file, int rank, vector<Position>& moves_list, vector<vector<Square>> board)
 {
     switch(p.type)
     {

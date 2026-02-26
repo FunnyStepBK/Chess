@@ -1,13 +1,12 @@
 #include <vector>
-#include <array>
-
 #include "../../board.hpp"
-#include "move-set.hpp"
 #include "../../../helper-functions.hpp"
+#include "move-set.hpp"
+
 
 using namespace std;
 
-void identify_opponent(vector<vector<Square>> v, int row, int col, char color, vector<array<int, 2>>& moves_list)
+void identify_opponent(vector<vector<Square>> v, int row, int col, char color, vector<Position>& moves_list)
 {
     // If it encounters a piece with a different color
     if(v[row][col].get_piece().color != color)
@@ -19,7 +18,7 @@ void identify_opponent(vector<vector<Square>> v, int row, int col, char color, v
     // Does nothing if the piece is of the same color
 }
 
-void MoveSet::travel_diagonally(vector<vector<Square>> v, int row, int col, int _row, int _col, int fuel, vector<array<int, 2>>& moves_list, char color, bool avoid_pieces)
+void MoveSet::travel_diagonally(vector<vector<Square>> v, int row, int col, int _row, int _col, int fuel, vector<Position>& moves_list, char color, bool avoid_pieces)
 {
     if(fuel == 0) return;
 
@@ -37,7 +36,7 @@ void MoveSet::travel_diagonally(vector<vector<Square>> v, int row, int col, int 
     travel_diagonally(v, row + _row, col + _col, _row, _col, fuel, moves_list, color, avoid_pieces);
 }
 
-void MoveSet::intercardinal_traversal(vector<vector<Square>> vec, int row, int col, int fuel, vector<array<int, 2>>& moves_list, char color, bool avoid_pieces)
+void MoveSet::intercardinal_traversal(vector<vector<Square>> vec, int row, int col, int fuel, vector<Position>& moves_list, char color, bool avoid_pieces)
 {
     if(fuel == 0) return;
 
@@ -47,7 +46,7 @@ void MoveSet::intercardinal_traversal(vector<vector<Square>> vec, int row, int c
     travel_diagonally(vec, row - 1, col - 1, -1, -1, fuel, moves_list, color, avoid_pieces);
 }
 
-void MoveSet::travel_straight(vector<vector<Square>> v, int row, int col, int _row, int _col, int fuel, vector<array<int, 2>>& moves_list, char color, bool avoid_pieces)
+void MoveSet::travel_straight(vector<vector<Square>> v, int row, int col, int _row, int _col, int fuel, vector<Position>& moves_list, char color, bool avoid_pieces)
 {
     if(fuel == 0) return;
 
@@ -68,7 +67,7 @@ void MoveSet::travel_straight(vector<vector<Square>> v, int row, int col, int _r
     if(fuel == 0 && avoid_pieces) moves_list.push_back({row, col});
 }
 
-void MoveSet::cardinal_traversal(vector<vector<Square>> vec, int row, int col, int fuel, vector<array<int, 2>>& moves_list, char color, bool avoid_pieces)
+void MoveSet::cardinal_traversal(vector<vector<Square>> vec, int row, int col, int fuel, vector<Position>& moves_list, char color, bool avoid_pieces)
 {
     if(fuel == 0) return;
 
@@ -78,26 +77,26 @@ void MoveSet::cardinal_traversal(vector<vector<Square>> vec, int row, int col, i
     travel_straight(vec, row - 1, col, -1, 0, fuel, moves_list, color, avoid_pieces);
 }
 
-void MoveSet::knight_move_set(vector<vector<Square>> v, int row, int col, vector<array<int, 2>>& moves_list, char color)
+void MoveSet::knight_move_set(vector<vector<Square>> v, int row, int col, vector<Position>& moves_list, char color)
 {
     bool avoid_pieces = false;
     cardinal_traversal(v, row, col, 2, moves_list, color, true);
 
-    vector<array<int, 2>> temp = moves_list;
-    moves_list = vector<array<int, 2>>();
+    vector<Position> temp = moves_list;
+    moves_list.clear();
 
-    for(array<int, 2> a : temp)
+    for(Position p : temp)
     {
-        if(a[1] > col || a[1] < col)
+        if(p.col > col || p.col < col)
         {
-            travel_straight(v, a[0] - 1, a[1], -1, 0, 1, moves_list, color, avoid_pieces);
-            travel_straight(v, a[0] + 1, a[1], -1, 0, 1, moves_list, color, avoid_pieces);
+            travel_straight(v, p.row - 1, p.col, -1, 0, 1, moves_list, color, avoid_pieces);
+            travel_straight(v, p.row + 1, p.col, -1, 0, 1, moves_list, color, avoid_pieces);
         }
 
-        if(a[0] > row || a[0] < row)
+        if(p.row > row || p.row < row)
         {
-            travel_straight(v, a[0], a[1] - 1, 0, -1, 1, moves_list, color, avoid_pieces);
-            travel_straight(v, a[0], a[1] + 1, 0, -1, 1, moves_list, color, avoid_pieces);
+            travel_straight(v, p.row, p.col - 1, 0, -1, 1, moves_list, color, avoid_pieces);
+            travel_straight(v, p.row, p.col + 1, 0, -1, 1, moves_list, color, avoid_pieces);
         }
     }
 
