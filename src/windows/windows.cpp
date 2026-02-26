@@ -50,10 +50,19 @@ vector<WINDOW*> initialize_windows()
     float y_log, x_log;
     getmaxyx(log_window, y_log, x_log);
 
+
     // Log_window component windows
     WINDOW* moves_log_win = create_win((y_log/100) * 80, (x_log/100) * 88, 1, main_win_width + 6);
     WINDOW* eval_log_win = create_win(y_log - 2, (x_log/100) * 8, 1, main_win_width + ((x_log/100) * 88) + 7);
     WINDOW* warns_log_win = create_win((y_log/100) * 18, (x_log/100) * 88, ((y_log/100) * 80) + 1, main_win_width + 6);
+
+    float y_moves_log, x_moves_log;
+    getmaxyx(moves_log_win, y_moves_log, x_moves_log);
+
+    wattron(moves_log_win, COLOR_PAIR(4));
+    mvwvline(moves_log_win, 1, (x_moves_log/100) * 33, ACS_VLINE, y_moves_log - 2);
+    mvwvline(moves_log_win, 1, (x_moves_log/100) * 66, ACS_VLINE, y_moves_log - 2);
+    wattroff(moves_log_win, COLOR_PAIR(4));
 
     return {main_window, log_window, input_window, moves_log_win, eval_log_win, warns_log_win};
 }

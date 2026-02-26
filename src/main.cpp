@@ -60,6 +60,7 @@ int main()
     {
         board.print_board(main_window);
         board.print_score(main_window);
+        board.print_moves_to_screen(moves_log_win);
 
         box(active_window, 0, 0);
 
@@ -73,6 +74,8 @@ int main()
 
         if(handle_output(board.move_piece(res, input_window, warn_log_win), warn_log_win))
         {
+            board.moves.push_back(string(res));
+
             // If the move was valid then check - If the opponent player got a check? If yes, then check if it's a checkmate
             if(board.is_checked(board.get_turn()))
             {
@@ -84,19 +87,20 @@ int main()
 
                     board.print_board(main_window);
                     board.print_score(main_window);
+                    board.print_moves_to_screen(moves_log_win);
 
                     update_panels();
                     doupdate();
 
                     while(handle_input(res, board, true, running, input_window, warn_log_win)) { }
 
+                    clear_and_box_win(moves_log_win);
                 } else
                 {
                     print_ascii(warn_log_win, 3, (x/100) * 21, check_warn_ascii, 3);
                 }
 
             }
-
         }
 
     }

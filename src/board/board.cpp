@@ -1,8 +1,9 @@
 #include <vector>
 #include <string>
 #include <array>
-
 #include <ncurses.h>
+#include <panel.h>
+
 #include "board.hpp"
 #include "../windows/windows.hpp"
 #include "../helper-functions.hpp"
@@ -212,6 +213,45 @@ void Board::print_score(WINDOW* window)
     mvwprintw(window, y - 5, 1, "B:%i", black_score);
     mvwprintw(window, y - 5, x - 5, "W:%i", white_score);
     wattroff(window, A_STANDOUT | COLOR_BLACK | A_BOLD);
+}
+
+void Board::print_moves_to_screen(WINDOW* window)
+{
+    float x, y;
+    getmaxyx(window, y, x);
+
+    float _x = 1;
+
+    int starting_index = 0;
+    if((3 * (y - 2)) < (float)moves.size() / 2)
+    {
+        starting_index = ((float)moves.size() / 2) - (3 * (y - 2));
+    }
+
+    int step = 1;
+    for(int i = starting_index; i < moves.size(); i++)
+    {
+        if(step == y - 2)
+        {
+            step = 1;
+            _x += (x/100) * 33;
+        }
+
+        if(i % 2 == 0)
+        {
+            mvwprintw(window, step, _x, "%i.   %s", step, moves[i].c_str());
+            continue;
+        } else
+        {
+            mvwprintw(window, step, _x + 20, "%s", moves[i].c_str());
+        }
+        step++;
+    }
+
+    wattron(window, COLOR_PAIR(4));
+    mvwvline(window, 1, (x/100) * 33, ACS_VLINE, y - 2);
+    mvwvline(window, 1, (x/100) * 66, ACS_VLINE, y - 2);
+    wattroff(window, COLOR_PAIR(4));
 }
 
 int Board::valid_move(Piece p, int file, int rank, int target_file, int target_rank)
@@ -457,14 +497,14 @@ int Board::move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win)
     return VALID_MOVE;
 }
 
-int Board::undo_move(WINDOW* warn_log_win)
+void Board::undo_move(WINDOW* warn_log_win)
 {
     int s = moves_buffer.size();
 
     if(s == 0)
     {
         mvwprintw(warn_log_win, 1, 1, "> No moves in the moves buffer, it only stores the last 3 moves.");
-        return 0;
+        return;
     }
 
     int file = moves_buffer[s-1][0];
@@ -549,12 +589,15 @@ int Board::undo_move(WINDOW* warn_log_win)
     // Update the turn
     update_turn();
 
-    if(move_type == 1)
+    // Pop back the last move from the moves vector
+    moves.pop_back();
+
+    if(move_type == 1 || move_type == 2 || move_type == 4)
     {
         decrement_score(moved_piece);
     }
 
-    return 1;
+    return;
 }
 
 void Board::undo_capture(Square& current_square, Square& initial_square, Piece capturing_piece)

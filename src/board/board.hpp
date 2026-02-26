@@ -74,6 +74,7 @@ public:
 
     void print_board(WINDOW* window);
     void print_score(WINDOW* window);
+    void print_moves_to_screen(WINDOW* window);
 
     // Funcitons related to the whole piece movement functionality
     int valid_move(Piece p, int file, int rank, int target_file, int target_rank);
@@ -81,7 +82,7 @@ public:
     int move_piece(char move[], WINDOW* input_window, WINDOW* warn_log_win);
 
     // Funcitons related to undo-redo stuff
-    int undo_move(WINDOW* warn_log_win);
+    void undo_move(WINDOW* warn_log_win);
     void undo_capture(Square& current_square, Square& initial_square, Piece capturing_piece);
 
     // A function that will prompt a player and get thier response when a pawn reaches it's promotion rank
